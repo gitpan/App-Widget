@@ -1,6 +1,6 @@
 
 ######################################################################
-## $Id: RepositoryEditor.pm,v 1.7 2004/02/09 22:05:45 spadkins Exp $
+## $Id: RepositoryEditor.pm,v 1.8 2004/11/10 15:44:26 spadkins Exp $
 ######################################################################
 ## x TODO: add "summary" feature
 ## x TODO: add cross-tabulation
@@ -32,7 +32,7 @@
 ## x TODO: add default {summary} formula as sum(COL)            (for numbers)
 
 package App::Widget::RepositoryEditor;
-$VERSION = do { my @r=(q$Revision: 1.7 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.8 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -425,7 +425,7 @@ sub column_selection_html {
 
     for ($i = 0; $i < 5; $i++) {
 
-        $order_menu[$i]    = $context->widget("$name\{ordercols}[$i]",
+        $order_menu[$i]    = $context->widget("$name\{ordercols\}[$i]",
                                  class => "App::Widget::Select",
                                  values => $columns,
                                  labels => $column_labels,
@@ -433,13 +433,13 @@ sub column_selection_html {
                                  nullable => 1,
                              )->html();
 
-        $dir_menu[$i]      = $context->widget("$name\{directions}[$i]",
+        $dir_menu[$i]      = $context->widget("$name\{directions\}[$i]",
                                  class => "App::Widget::Select",
-                                 values => [ '', 'UP', 'DOWN', ],
-                                 labels => { '' => '', 'UP' => 'Up', 'DOWN' => 'Down', },
+                                 values => [ '', 'asc', 'desc', ],
+                                 labels => { '' => '', 'asc' => 'Up', 'desc' => 'Down', },
                              )->html();
 
-        $summ_checkbox[$i] = $context->widget("$name\{summarize}[$i]",
+        $summ_checkbox[$i] = $context->widget("$name\{summarize\}[$i]",
                                  class => "App::Widget::Checkbox",
                              )->html();
 

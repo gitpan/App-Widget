@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: ImageButton.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: ImageButton.pm,v 1.6 2004/11/10 15:45:09 spadkins Exp $
 ######################################################################
 
 package App::Widget::ImageButton;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -69,6 +69,7 @@ sub html {
     $selected     = $self->{selected} ? "&selected=1" : "&selected=0";
 
     $image = $self->get("image");
+    my $html_attribs = $self->html_attribs();
     if ($image) {
         $height     = $self->get("height");
         $width      = $self->get("width");
@@ -83,7 +84,7 @@ sub html {
             $url    = "$html_url_dir/$image";
         }
 
-        return "<input type=\"image\" name=\"app.event.$event_target.$event$args\" src=\"$url\" border=\"0\"$height$width alt=\"$html_label\"$tabindex/>";
+        return "<input type=\"image\" name=\"app.event.$event_target.$event$args\" src=\"$url\" border=\"0\"$height$width alt=\"$html_label\"$tabindex$html_attribs/>";
     }
 
     $image_script = $self->get("image_script","app-button");
@@ -100,10 +101,10 @@ sub html {
             $url    = "$script_url_dir/$image_script";
         }
         $url .= "?mode=$type&width=$width&height=$height&bevel=$bevel&text=$url_label$selected";
-        return "<input type=\"image\" name=\"app.event.$event_target.$event$args\" src=\"$url\" border=\"0\" height=\"$height\" width=\"$width\" alt=\"$html_label\"$tabindex/>";
+        return "<input type=\"image\" name=\"app.event.$event_target.$event$args\" src=\"$url\" border=\"0\" height=\"$height\" width=\"$width\" alt=\"$html_label\"$tabindex$html_attribs/>";
     }
 
-    return "<input type=\"submit\" name=\"app.event.$event_target.$event$args\" value=\"$html_label\"$tabindex/>";
+    return "<input type=\"submit\" name=\"app.event.$event_target.$event$args\" value=\"$html_label\"$tabindex$html_attribs/>";
 }
 
 1;

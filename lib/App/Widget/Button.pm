@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Button.pm,v 1.3 2004/09/02 21:05:00 spadkins Exp $
+## $Id: Button.pm,v 1.4 2004/11/10 15:45:09 spadkins Exp $
 ######################################################################
 
 package App::Widget::Button;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -82,7 +82,8 @@ sub html {
     my $self = shift;
     my $name = $self->{name};
     my $label = $self->html_escape($self->{label});
-    return "<input type=\"submit\" name=\"app.event.${name}.click\" value=\"$label\"/>";
+    my $html_attribs = $self->html_attribs();
+    return "<input type=\"submit\" name=\"app.event.${name}.click\" value=\"$label\"$html_attribs/>";
 }
 
 1;

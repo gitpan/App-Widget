@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Select.pm,v 1.2 2004/09/02 21:05:00 spadkins Exp $
+## $Id: Select.pm,v 1.3 2004/11/10 15:45:09 spadkins Exp $
 ######################################################################
 
 package App::Widget::Select;
-$VERSION = do { my @r=(q$Revision: 1.2 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget::Stylizable;
 @ISA = ( "App::Widget::Stylizable" );
@@ -101,7 +101,8 @@ sub unstyled_html {
             "</option>\n");
     }
 
-    return "<select name='$tagname'${size}${multiple}${tabindex}>\n" . join("",@html) . "</select>";
+    my $html_attribs = $self->html_attribs();
+    return "<select name='$tagname'${size}${multiple}${tabindex}$html_attribs>\n" . join("",@html) . "</select>";
 }
 
 1;

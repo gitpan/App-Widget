@@ -292,9 +292,6 @@ sub html {
     my $up_button       = $context->widget("${name}.up_button")->html();
     my $dn_button       = $context->widget("${name}.dn_button")->html();
 
-    my $var_hidden = "";
-    # my $var_hidden = $self->callback_event_tag("restore");
-
     my $html = <<EOF;
 <table border=0 cellspacing=3>
 <tr>
@@ -313,7 +310,6 @@ sub html {
    <td align=center valign=top>Selected</td>
 </tr>
 </table>
-$var_hidden
 EOF
 
     $html;

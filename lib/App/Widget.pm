@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Widget.pm,v 1.4 2004/09/02 21:05:00 spadkins Exp $
+## $Id: Widget.pm,v 1.6 2005/01/07 13:52:17 spadkins Exp $
 ######################################################################
 
 package App::Widget;
-$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::SessionObject;
 @ISA = ( "App::SessionObject" );
@@ -166,13 +166,20 @@ EOF
         }
     }
 
+    my $context = $self->{context};
+    my $response = $context->response();
     my $context_head = "";
     my $context_body = "";
+    if ($response->{include}{javascript}) {
+        my $javascript = $response->{include}{javascript};
+        foreach my $url (keys %$javascript) {
+            $context_head .= "<script src=\"$url\"></script>\n";
+        }
+    }
 
     #$context_head = $self->{context}->head_html();
     #$context_body = $self->{context}->body_html(\%main::conf);
 
-    my $context = $self->{context};
     my $session_html = $context->session()->html();
 
     my $messages = $context->get_messages() || "";
@@ -347,6 +354,18 @@ sub html_escape {
    $text =~ s{>}{&gt;}gso;
    $text =~ s{\"}{&quot;}gso;
    return $text;
+}
+
+sub html_attribs {
+   my ($self) = @_;
+   my $html_attribs = "";
+   if ($self->{attrib}) {
+      my $attrib_value = $self->{attrib};
+      foreach my $attrib (keys %$attrib_value) {
+         $html_attribs .= " $attrib=\"$attrib_value->{$attrib}\"";
+      }
+   }
+   return($html_attribs);
 }
 
 sub html {
