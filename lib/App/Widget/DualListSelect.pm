@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DualListSelect.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: DualListSelect.pm,v 1.6 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::DualListSelect;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget::StylizableContainer;
 @ISA = ( "App::Widget::StylizableContainer" );
@@ -37,14 +37,14 @@ sub _init {
 
     my ($values, $labels) = $self->values_labels();
 
-    $context->widget("${name}.unselected",
+    $context->widget("${name}-unselected",
         class => "App::Widget::Select",
         labels => $labels,
         @select_attribs,
         lightweight => 1,
     );
 
-    $context->widget("${name}.selected",
+    $context->widget("${name}-selected",
         class => "App::Widget::Select",
         labels => $labels,
         @select_attribs,
@@ -52,7 +52,7 @@ sub _init {
     );
 
     if ($self->{noimagebuttons}) {
-        $context->widget("${name}.select_button",
+        $context->widget("${name}-select_button",
             class => "App::Widget::Button",
             label       => " >> ",
             event       => "select",
@@ -60,7 +60,7 @@ sub _init {
             lightweight => 1,
         );
 
-        $context->widget("${name}.unselect_button",
+        $context->widget("${name}-unselect_button",
             class => "App::Widget::Button",
             label       => " << ",
             event       => "unselect",
@@ -68,7 +68,7 @@ sub _init {
             lightweight => 1,
         );
 
-        $context->widget("${name}.up_button",
+        $context->widget("${name}-up_button",
             class => "App::Widget::Button",
             label       => " Up ",
             event       => "move_up",
@@ -76,7 +76,7 @@ sub _init {
             lightweight => 1,
         );
 
-        $context->widget("${name}.dn_button",
+        $context->widget("${name}-dn_button",
             class => "App::Widget::Button",
             label       => " Dn ",
             event       => "move_down",
@@ -85,7 +85,7 @@ sub _init {
         );
     }
     else {
-        $context->widget("${name}.select_button",
+        $context->widget("${name}-select_button",
             class => "App::Widget::ImageButton",
             image       => "images/DualListSelect/rtarrow.gif",
             height      => "19",
@@ -96,7 +96,7 @@ sub _init {
             lightweight => 1,
         );
     
-        $context->widget("${name}.unselect_button",
+        $context->widget("${name}-unselect_button",
             class => "App::Widget::ImageButton",
             image       => "images/DualListSelect/lfarrow.gif",
             height      => "19",
@@ -107,7 +107,7 @@ sub _init {
             lightweight => 1,
         );
     
-        $context->widget("${name}.up_button",
+        $context->widget("${name}-up_button",
             class => "App::Widget::ImageButton",
             image       => "images/DualListSelect/uparrow.gif",
             height      => "19",
@@ -118,7 +118,7 @@ sub _init {
             lightweight => 1,
         );
     
-        $context->widget("${name}.dn_button",
+        $context->widget("${name}-dn_button",
             class => "App::Widget::ImageButton",
             image       => "images/DualListSelect/dnarrow.gif",
             height      => "19",
@@ -271,8 +271,8 @@ sub _set_child_widget_values {
     push(@selected_list, $NONE) if ($#selected_list == -1);
     push(@unselected_list, $NONE) if ($#unselected_list == -1);
 
-    $context->widget("$name.selected")->{values}   = \@selected_list;
-    $context->widget("$name.unselected")->{values} = \@unselected_list;
+    $context->widget("$name-selected")->{values}   = \@selected_list;
+    $context->widget("$name-unselected")->{values} = \@unselected_list;
     $context->so_delete($name, "selected");
     $context->so_delete($name, "unselected");
 }
@@ -285,12 +285,12 @@ sub html {
 
     $self->_set_child_widget_values();
 
-    my $unselected_list = $context->widget("${name}.unselected")->html();
-    my $selected_list   = $context->widget("${name}.selected")->html();
-    my $select_button   = $context->widget("${name}.select_button")->html();
-    my $unselect_button = $context->widget("${name}.unselect_button")->html();
-    my $up_button       = $context->widget("${name}.up_button")->html();
-    my $dn_button       = $context->widget("${name}.dn_button")->html();
+    my $unselected_list = $context->widget("${name}-unselected")->html();
+    my $selected_list   = $context->widget("${name}-selected")->html();
+    my $select_button   = $context->widget("${name}-select_button")->html();
+    my $unselect_button = $context->widget("${name}-unselect_button")->html();
+    my $up_button       = $context->widget("${name}-up_button")->html();
+    my $dn_button       = $context->widget("${name}-dn_button")->html();
 
     my $html = <<EOF;
 <table border=0 cellspacing=3>

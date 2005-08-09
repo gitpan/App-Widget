@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: TabbedAppFrame.pm,v 1.3 2003/05/19 17:41:18 spadkins Exp $
+## $Id: TabbedAppFrame.pm,v 1.4 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::TabbedAppFrame;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -74,8 +74,8 @@ sub handle_event {
     $name = $self->{name};
     $context   = $self->{context};
 
-    if ($wname eq "$name.selector" && $event eq "select") {
-        $selector_widget = $context->widget("$name.selector");
+    if ($wname eq "$name-selector" && $event eq "select") {
+        $selector_widget = $context->widget("$name-selector");
         $screen_wname    = $selector_widget->get_selected("wname");
         $screen_widget   = $context->widget($screen_wname);
 
@@ -132,29 +132,38 @@ sub html {
     $context = $self->{context};
 
     my ($menu, $toolbar, $screentitle, $screentoolbar);
+    my ($top);
     my ($selector_widget, $selector, $selector_bgcolor);
     my ($screen_wname, $screen, $screen_widget, $screen_bgcolor);
     my ($screentitle_widget, $screentitle_bgcolor, $screentitle_value);
 
     if (1) {     # view as table
 
-        $menu            = $context->widget("$name.menu",
-                               class => "App::Widget::Menu",
-                           )->html();
+        $top              = $context->widget("$name-top",
+                               class => "App::Widget::Template",
+                            )->html();
+        $top = "" if ($top =~ /not found/i);
 
-        $toolbar         = $context->widget("$name.toolbar",
-                               class => "App::Widget::Toolbar",
-                           )->html();
+        #$menu            = $context->widget("$name-menu",
+        #                       class => "App::Widget::Menu",
+        #                   )->html();
 
-        $screentoolbar   = $context->widget("$name.screentoolbar",
-                               class => "App::Widget::Toolbar",
-                           )->html();
+        #$toolbar         = $context->widget("$name-toolbar",
+        #                       class => "App::Widget::Toolbar",
+        #                   )->html();
 
-        $selector_widget = $context->widget("$name.selector",
-                               class => "App::Widget::SelectorView",
-                           );
+        #$screentoolbar   = $context->widget("$name-screentoolbar",
+        #                       class => "App::Widget::Toolbar",
+        #                   )->html();
 
-        $selector_bgcolor = "#cccccc";
+        $selector_widget = $context->widget("$name-selector",
+                               class => "App::Widget::TabbedSelector",
+                            );
+
+        $selector_bgcolor = "";
+        if ($self->{selector_bgcolor}) {
+            $selector_bgcolor = " bgcolor=\"$self->{selector_bgcolor}\"";
+        }
         $selector        = $selector_widget->html();
         $screen_wname    = $selector_widget->get_selected("wname");
 
@@ -176,7 +185,7 @@ sub html {
             return $screen;    # no need to generate a frame
         }
 
-        #$screentitle_widget = $context->widget("$name.screentitle",
+        #$screentitle_widget = $context->widget("$name-screentitle",
         #    -label     => $screentitle_value,
         #    -bgcolor   => "#888888",
         #);
@@ -207,9 +216,9 @@ sub html {
         $messagebox = "";
         if (defined $messages && $messages ne "") {
             my ($elem_begin, $elem_end, $fontFace, $fontSize, $fontColor);
-            $fontFace  = $self->{fontFace} || "verdana,geneva,arial,sans-serif";
-            $fontSize  = $self->{fontSize} || "+1";
-            $fontColor = $self->{fontColor};
+            $fontFace  = $self->{font_face} || "verdana,geneva,arial,sans-serif";
+            $fontSize  = $self->{font_size} || "+1";
+            $fontColor = $self->{font_color};
             $elem_begin = "";
             $elem_end = "";
             if ($fontFace || $fontSize || $fontColor) {
@@ -244,17 +253,12 @@ sub html {
 EOF
         }
 
+        my $appframe_width = $self->{width} || "100%";
         $html = <<EOF;
-<table width="100%" border="2" cellspacing="2" cellpadding="0">
+$top
+<table width="$appframe_width" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td valign="top" bgcolor="$screentitle_bgcolor">
-      $screentitle
-    </td>
-  </tr>
-</table>
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td valign="top" bgcolor="$selector_bgcolor">
+    <td valign="top"$selector_bgcolor>
       $selector
     </td>
   </tr>

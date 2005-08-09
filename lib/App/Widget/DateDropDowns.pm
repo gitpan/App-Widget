@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DateDropDowns.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: DateDropDowns.pm,v 1.6 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::DateDropDowns;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget::StylizableContainer;
 @ISA = ( "App::Widget::StylizableContainer" );
@@ -76,12 +76,12 @@ sub _init {
 
     # NOTE: container is inferred by the naming convention
     #       otherwise, I should include "container => $name," line
-    $context->widget("${name}.day",  # note: container is inferred
+    $context->widget("${name}-day",  # note: container is inferred
         class => "App::Widget::Select",
         values => \@dayvalues,
     );
 
-    $context->widget("${name}.month",
+    $context->widget("${name}-month",
         class => "App::Widget::Select",
         values => \@monthvalues,
         labels => \%monthlabels,
@@ -90,7 +90,7 @@ sub _init {
     my ($begin_year, $end_year);
     $begin_year = $self->{begin_year} || 1980;
     $end_year   = $self->{end_year}   || 2010;
-    $context->widget("${name}.year",
+    $context->widget("${name}-year",
         class => "App::Widget::Select",
         values => [ $begin_year .. $end_year ],
     );
@@ -200,9 +200,9 @@ sub html {
     $self->split_date();
 
     return 
-        $context->widget("${name}.day")->html() .
-        $context->widget("${name}.month")->html() .
-        $context->widget("${name}.year")->html() .
+        $context->widget("${name}-day")->html() .
+        $context->widget("${name}-month")->html() .
+        $context->widget("${name}-year")->html() .
         $self->callback_event_tag("change");
 }
 

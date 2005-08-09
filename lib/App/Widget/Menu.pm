@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Menu.pm,v 1.1 2002/10/12 03:13:08 spadkins Exp $
+## $Id: Menu.pm,v 1.2 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::Menu;
-$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.2 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -18,7 +18,7 @@ App::Widget::Menu - An application menu.
 
 =head1 SYNOPSIS
 
-   $name = "office.menu";
+   $name = "office-menu";
 
    # official way
    use App;

@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: HierView.pm,v 1.4 2004/09/02 21:05:00 spadkins Exp $
+## $Id: HierSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
 ######################################################################
 
-package App::Widget::HierView;
-$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+package App::Widget::HierSelector;
+$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -14,14 +14,14 @@ use strict;
 
 =head1 NAME
 
-App::Widget::HierView - A generic hierarchical view
+App::Widget::HierSelector - A generic hierarchical view
 
 =head1 SYNOPSIS
 
-   use App::Widget::HierView;
+   use App::Widget::HierSelector;
 
    $name = "tree";
-   $w = App::Widget::HierView->new($name);
+   $w = App::Widget::HierSelector->new($name);
    print $w->html();
 
 =cut
@@ -46,8 +46,8 @@ App::Widget::HierView - A generic hierarchical view
 =head1 DESCRIPTION
 
 This class implements a generic hierarchical view such as is useful
-for a TreeView, a Menu, a ToolbarSet, or a SelectorView.
-The main function of a HierView is to display a hierarchical set of
+for a TreeSelector, a Menu, a ToolbarSet, or an IconPaneSelector.
+The main function of a HierSelector is to display a hierarchical set of
 data and allow the user to generate events based on that view.
 
 =cut
@@ -90,7 +90,7 @@ sub handle_event {
         ($nodenumber, $x, $y) = @args;
         $self->set("selected", $nodenumber);  # save node number
         # intentionally bubble "select" event to the container
-        if ($wname =~ /^(.*)\.([^.]+)$/) {
+        if ($wname =~ /^(.*)-([^.]+)$/) {
             my $parent = $1;
             my $result = $self->{context}->widget($parent)->handle_event($wname, $event, @args);
             return $result;
@@ -159,6 +159,11 @@ sub select {
         }
     }
     return($success);
+}
+
+sub open_selected_exclusively {
+    my ($self) = @_;
+    $self->open_exclusively($self->{selected});
 }
 
 sub open_exclusively {

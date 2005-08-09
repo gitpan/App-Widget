@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DataTable.pm,v 1.6 2004/09/02 21:05:00 spadkins Exp $
+## $Id: DataTable.pm,v 1.7 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::DataTable;
-$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.7 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -33,30 +33,35 @@ App::Widget::DataTable - An HTML button
 ######################################################################
 # ATTRIBUTES
 ######################################################################
-# {border}         = 0;
-# {cellspacing}    = 2;
-# {cellpadding}    = 0;
-# {width}          = "";
-# {bgcolor}        = "";
-# {nowrap}         = "1";
-# {fontFace}       = "verdana,geneva,arial,sans-serif";
-# {fontSize}       = "-2";
-# {fontColor}      = "";
-# {headingBgcolor} = "#cccccc";
-# {headingNowrap}  = 0;
-# {columns}        = [ "Name", "Address", "City", "State", "Country", "Home Phone" ];
-# {headings}       = [ "Name", "Address", "City", "State", "Country", "Home Phone" ];
-# {data}           = [ [ "Smith, Harold", "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1810" ],
-#                      [ "Smith, Mike",   "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1811" ],
-#                      [ "Smith, Sarah",  "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1812" ],
-#                      [ "Smith, Ken",    "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1813" ],
-#                      [ "Smith, Mary",   "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1814" ], ];
-# {startrow}       = 1
-# {maxrows}        = 20
-# {scrollable}     = 0;
-# {sortable}       = 0;
-# {filterable}     = 0;
-# {editable}       = 0;
+# {border}            = 0;
+# {cellspacing}       = 2;
+# {cellpadding}       = 0;
+# {width}             = "";
+# {bgcolor}           = "";
+# {nowrap}            = "1";
+# {font_face}         = "verdana,geneva,arial,sans-serif";
+# {font_size}         = "-2";
+# {font_color}        = "";
+# {heading_bgcolor}   = "#cccccc";
+# {heading_nowrap}    = 0;
+# {heading_align}     = 0;
+# {heading_valign}    = 0;
+# {column_selectable} = 1;
+# {row_selectable}    = 0;
+# {row_single_selectable} = 0;
+# {columns}           = [ "Name", "Address", "City", "State", "Country", "Home Phone" ];
+# {headings}          = [ "Name", "Address", "City", "State", "Country", "Home Phone" ];
+# {data}              = [ [ "Smith, Harold", "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1810" ],
+#                         [ "Smith, Mike",   "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1811" ],
+#                         [ "Smith, Sarah",  "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1812" ],
+#                         [ "Smith, Ken",    "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1813" ],
+#                         [ "Smith, Mary",   "1215 Interloke Pass", "Jonesboro", "GA", "US", "770-603-1814" ], ];
+# {startrow}          = 1
+# {maxrows}           = 20
+# {scrollable}        = 0;
+# {sortable}          = 0;
+# {filterable}        = 0;
+# {editable}          = 0;
 
 # INPUTS FROM THE ENVIRONMENT
 
@@ -87,6 +92,7 @@ sub _init {
 
 # Usage: $widget->handle_event($event, @args);
 sub handle_event {
+    &App::sub_entry if ($App::trace);
     my ($self, $wname, $event, @args) = @_;
     my ($name, $context, $colnum, $x, $y, $startrow, $maxrows, $width, $direction);
 
@@ -96,42 +102,43 @@ sub handle_event {
     $self->{context}->dbgprint("DataTable($name)->handle_event($wname,$event,@args)")
         if ($App::DEBUG && $self->{context}->dbg(1));
 
-    if ($wname eq "$name.view") {
+    my $handled = 0;
+    if ($wname eq "$name-view") {
         $self->set("mode","view");
         $self->delete("editdata");
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.edit") {
+    elsif ($wname eq "$name-edit") {
         $self->set("mode","edit");
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.next") {
+    elsif ($wname eq "$name-next") {
         $startrow = $self->get("startrow",1,1);
         $maxrows  = $self->get("maxrows",20,1);
         $startrow += $maxrows;
         $self->set("startrow",$startrow);
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.prev") {
+    elsif ($wname eq "$name-prev") {
         $startrow = $self->get("startrow",1,1);
         $maxrows  = $self->get("maxrows",20,1);
         $startrow -= $maxrows;
         $startrow = 1 if ($startrow < 1);
         $self->set("startrow",$startrow);
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.save") {
+    elsif ($wname eq "$name-save") {
         $self->save();
         $self->delete("editdata");
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.add") {
+    elsif ($wname eq "$name-add") {
         $self->{context}->add_message("Add Rows: not yet implemented");
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname eq "$name.delete") {
+    elsif ($wname eq "$name-delete") {
         $self->{context}->add_message("Delete Rows: not yet implemented");
-        return 1;
+        $handled = 1;
     }
     elsif ($event eq "sort") {
         ($colnum, $direction) = @args;
@@ -161,22 +168,24 @@ sub handle_event {
 
         $self->set("ordercols",$ordercols);
         $self->set("directions",$directions);
-        return 1;
+        $handled = 1;
     }
-    elsif ($wname =~ /^$name.sort[0-9]*$/) {
+    elsif ($wname =~ /^-sort[0-9]*$/) {
         ($colnum, $x, $y) = @args;
         $context = $self->{context};
         $width = $context->widget($wname)->get("width");
         if ($x <= $width/2) {
-            return $self->handle_event($wname, "sort", $colnum, "UP");
+            $handled = $self->handle_event($wname, "sort", $colnum, "UP");
         }
         else {
-            return $self->handle_event($wname, "sort", $colnum, "DOWN");
+            $handled = $self->handle_event($wname, "sort", $colnum, "DOWN");
         }
     }
     else {
-        return $self->SUPER::handle_event(@_);
+        $handled = $self->SUPER::handle_event(@_);
     }
+    &App::sub_exit($handled) if ($App::trace);
+    return($handled);
 }
 
 ######################################################################
@@ -249,6 +258,7 @@ sub get_data {
 }
 
 sub load {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     $self->{context}->dbgprint("DataTable->load()")
         if ($App::DEBUG && $self->{context}->dbg(1));
@@ -296,9 +306,8 @@ sub load {
         }
 
         $params      = $self->get("params");
-        $paramvalues = $self->get("paramvalues",{});
+        $paramvalues = $self->substitute($self->get("paramvalues",{}));
         %paramvalues = %$paramvalues;
-        $self->substitute(\%paramvalues);
         $filter      = $self->get("filter",{});
         foreach $column (%$filter) {
             $param = $column;
@@ -394,6 +403,7 @@ sub load {
         }
         $self->set("keys", $keys);
     }
+    &App::sub_exit() if ($App::trace);
 }
 
 sub save {
@@ -424,16 +434,15 @@ sub save {
                 push(@columns, $column);
                 push(@values, $editdata->{$key}{$column});
             }
-            $rep->set_values($table, $key, \@columns, \@values);
+            $rep->set($table, $key, \@columns, \@values);
         }
     }
     $rep->commit();
 }
 
 sub substitute {
+    &App::sub_entry if ($App::trace);
     my ($self, $text, $values) = @_;
-    $self->{context}->dbgprint("DataTable->substitute()")
-        if ($App::DEBUG && $self->{context}->dbg());
     my ($phrase, $var, $value, $context);
     $context = $self->{context};
     $values = {} if (! defined $values);
@@ -445,10 +454,11 @@ sub substitute {
         foreach $var (keys %$hash) {
             $newhash->{$var} = $self->substitute($hash->{$var}, $values);
         }
+        &App::sub_exit($newhash) if ($App::trace);
         return($newhash); # short-circuit this whole process
     }
 
-    while ( $text =~ /\[([^\[\]]+)\]/ ) {
+    while ( $text =~ /^\[([^\[\]]+)\]$/ ) {
         $phrase = $1;
         while ( $phrase =~ /\{([^\{\}]+)\}/ ) {
             $var = $1;
@@ -457,14 +467,9 @@ sub substitute {
                 $phrase =~ s/\{$var\}/$value/g;
             }
             else {
-                if ($var =~ /^(.+)\.([^.]+)$/) {
-                    $value = $context->wget($1, $2);
-                    if (defined $value) {
-                        $phrase =~ s/\{$var\}/$value/g;
-                    }
-                    else {
-                        $phrase = "";
-                    }
+                $value = $context->so_get($var);
+                if (defined $value) {
+                    $phrase =~ s/\{$var\}/$value/g;
                 }
                 else {
                     $phrase = "";
@@ -472,10 +477,10 @@ sub substitute {
             }
         }
         if ($phrase eq "") {
-            $text =~ s/\[[^\[\]]+\]\n?//;  # zap it including (optional) ending newline
+            $text =~ s/^\[[^\[\]]+\]\n?$//;  # zap it including (optional) ending newline
         }
         else {
-            $text =~ s/\[[^\[\]]+\]/$phrase/;
+            $text =~ s/^\[[^\[\]]+\]$/$phrase/;
         }
     }
     while ( $text =~ /\{([^\{\}]+)\}/ ) {  # vars of the form {var}
@@ -485,14 +490,12 @@ sub substitute {
             $text =~ s/\{$var\}/$value/g;
         }
         else {
-            $value = "";
-            if ($var =~ /^(.+)\.([^.]+)$/) {
-                $value = $context->wget($1, $2);
-            }
+            $value = $context->so_get($var);
         }
         $value = "" if (!defined $value);
         $text =~ s/\{$var\}/$value/g;
     }
+    &App::sub_exit($text) if ($App::trace);
     $text;
 }
 
@@ -518,67 +521,67 @@ sub html {
     my ($numcols, $table, $title);
     my ($width, $border, $cellspacing, $cellpadding);
     my ($bgcolor, $align, $valign, $nowrap);
-    my ($fontFace, $fontSize, $fontColor);
-    my ($headingBgcolor, $headingAlign, $headingValign, $headingNowrap);
+    my ($font_face, $font_size, $font_color);
+    my ($heading_bgcolor, $heading_align, $heading_valign, $heading_nowrap);
     my ($columns, $headings, $scrollable, $sortable, $filterable, $editable);
     my ($startrow, $numrow, $numbered);
     my ($keys, $mode, $sql);
-    my ($columnSelectable, $rowSelectable, $rowSingleSelectable, $elemSelected, $single_row_select);
+    my ($column_selectable, $row_selectable, $row_single_selectable, $elem_selected, $single_row_select);
     my (@edit_style, @column_length);
     my ($rowactions, $rowactiondefs, $rowaction, $rowactiondef);
     my (@select_actions, @single_select_actions, @row_actions);
 
-    $table            = $self->get("table");
+    $table             = $self->get("table");
     return "No table defined." if (!$table);
-    $columns          = $self->get_columns();
+    $columns           = $self->get_columns();
     return "No columns defined for table [$table]. (maybe it doesn't exist)" if (!$columns || $#$columns == -1);
-    $headings         = $self->get_headings();
-    $data             = $self->get_data();
-    $startrow         = $self->get("startrow",         1);
-    $title            = $self->get("title");
-    $width            = $self->get("width");
-    $bgcolor          = $self->get("bgcolor");
-    $fontColor        = $self->get("fontColor");
-    $border           = $self->get("border",           0);
-    $cellspacing      = $self->get("cellspacing",      2);
-    $cellpadding      = $self->get("cellpadding",      2);
-    $align            = $self->get("align",            "");
-    $valign           = $self->get("valign",           "top");
-    $nowrap           = $self->get("nowrap",           1);
-    $fontFace         = $self->get("fontFace",         "verdana,geneva,arial,sans-serif");
-    $fontSize         = $self->get("fontSize",         -2);
-    $headingBgcolor   = $self->get("headingBgcolor",   "#cccccc");
-    $headingAlign     = $self->get("headingAlign",     $align);
-    $headingValign    = $self->get("headingValign",    "bottom");
-    $headingNowrap    = $self->get("headingNowrap",    $nowrap);
-    $mode             = $self->get("mode",             "view");
-    $scrollable       = $self->get("scrollable",       0);
-    $sortable         = $self->get("sortable",         0);
-    $filterable       = $self->get("filterable",       0);
-    $editable         = $self->get("editable",         0);
-    $numbered         = $self->get("numbered",         1);
-    $columnSelectable = $self->get("columnSelectable", 1);
-    $rowSelectable    = $self->get("rowSelectable",    0);
-    $rowSingleSelectable = $self->get("rowSingleSelectable", 0);
-    $keys             = $self->get("keys");
-    $sql              = $self->get("sql");
-    $rowactions       = $self->get("rowactions");
-    $rowactiondefs    = $self->get("rowaction");
+    $headings          = $self->get_headings();
+    $data              = $self->get_data();
+    $startrow          = $self->get("startrow",         1);
+    $title             = $self->get("title");
+    $width             = $self->get("width");
+    $bgcolor           = $self->get("bgcolor");
+    $font_color        = $self->get("font_color");
+    $border            = $self->get("border",           0);
+    $cellspacing       = $self->get("cellspacing",      2);
+    $cellpadding       = $self->get("cellpadding",      2);
+    $align             = $self->get("align",            "");
+    $valign            = $self->get("valign",           "top");
+    $nowrap            = $self->get("nowrap",           1);
+    $font_face         = $self->get("font_face",         "verdana,geneva,arial,sans-serif");
+    $font_size         = $self->get("font_size",         -2);
+    $heading_bgcolor   = $self->get("heading_bgcolor",   "#cccccc");
+    $heading_align     = $self->get("heading_align",     $align);
+    $heading_valign    = $self->get("heading_valign",    "bottom");
+    $heading_nowrap    = $self->get("heading_nowrap",    $nowrap);
+    $mode              = $self->get("mode",             "view");
+    $scrollable        = $self->get("scrollable",       0);
+    $sortable          = $self->get("sortable",         0);
+    $filterable        = $self->get("filterable",       0);
+    $editable          = $self->get("editable",         0);
+    $numbered          = $self->get("numbered",         1);
+    $column_selectable = $self->get("column_selectable", 1);
+    $row_selectable    = $self->get("row_selectable",    (($mode eq "edit") ? 1 : 0));
+    $row_single_selectable = $self->get("row_single_selectable", 0);
+    $keys              = $self->get("keys");
+    $sql               = $self->get("sql");
+    $rowactions        = $self->get("rowactions");
+    $rowactiondefs     = $self->get("rowaction");
 
     if (! $self->{keycolidx}) {
-        $rowactions    = 0;
-        $rowSelectable = 0;        # can't select row(s) if no primary key
-        $rowSingleSelectable = 0;  # can't select row    if no primary key
+        $rowactions     = undef;
+        $row_selectable = 0;        # can't select row(s) if no primary key
+        $row_single_selectable = 0;  # can't select row    if no primary key
     }
     elsif ($rowactions && $rowactiondefs) {
         foreach $rowaction (@$rowactions) {
             if ($rowactiondefs->{$rowaction}{select} eq "single") {
                 push(@single_select_actions, $rowaction);
-                $rowSingleSelectable = 1;
+                $row_single_selectable = 1;
             }
             elsif ($rowactiondefs->{$rowaction}{select} eq "multi") {
                 push(@select_actions, $rowaction);
-                $rowSelectable = 1;
+                $row_selectable = 1;
             }
             else {
                 push(@row_actions, $rowaction);
@@ -587,9 +590,9 @@ sub html {
     }
 
     # only needed for subtotals
-    #my ($subtotal, $subtotalKeys, $ordercols);
-    #$subtotalKeys = $self->get("subtotalKeys");
-    #$subtotal = (defined $subtotalKeys && ref($subtotalKeys) eq "ARRAY" && $#$subtotalKeys > -1);
+    #my ($subtotal, $subtotal_keys, $ordercols);
+    #$subtotal_keys = $self->get("subtotal_keys");
+    #$subtotal = (defined $subtotal_keys && ref($subtotal_keys) eq "ARRAY" && $#$subtotal_keys > -1);
     #if ($subtotal) {
     #    $ordercols = $self->get("ordercols");
     #}
@@ -616,11 +619,11 @@ sub html {
 
         $elem_begin = "";
         $elem_end = "";
-        if ($fontFace || $fontSize || $fontColor) {
+        if ($font_face || $font_size || $font_color) {
             $elem_begin = "<font";
-            $elem_begin .= " face=\"$fontFace\""   if ($fontFace);
-            $elem_begin .= " size=\"" . ($fontSize+1) . "\""   if ($fontSize);
-            $elem_begin .= " color=\"$fontColor\"" if ($fontColor);
+            $elem_begin .= " face=\"$font_face\""   if ($font_face);
+            $elem_begin .= " size=\"" . ($font_size+1) . "\""   if ($font_size);
+            $elem_begin .= " color=\"$font_color\"" if ($font_color);
             $elem_begin .= ">";
             $elem_end = "</font>";
         }
@@ -628,7 +631,7 @@ sub html {
         if ($scrollable) {
             $html .= "<table border=\"0\" cellspacing=\"0\" cellpadding=\"5\"><tr><td>\n";
             $html .= "<table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td valign=\"middle\" nowrap>&nbsp;\n";
-            $html .= $context->widget("$name.view",
+            $html .= $context->widget("$name-view",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -639,7 +642,7 @@ sub html {
                      )->html();
             $html .= " ";
             if ($editable) {
-                $html .= $context->widget("$name.edit",
+                $html .= $context->widget("$name-edit",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -651,9 +654,9 @@ sub html {
                 $html .= " ";
             }
             $html .= "    &nbsp;</td><td nowrap";
-            $html .= " bgcolor=\"$headingBgcolor\"" if ($headingBgcolor);
+            $html .= " bgcolor=\"$heading_bgcolor\"" if ($heading_bgcolor);
             $html .= ">$elem_begin&nbsp;\n";
-            $html .= $context->widget("$name.prev",
+            $html .= $context->widget("$name-prev",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -663,19 +666,19 @@ sub html {
                          bevel => 2,
                      )->html();
             $html .= "\n Start Row:";
-            $html .= $context->widget("$name.startrow",
+            $html .= $context->widget("$name-startrow",
                          class => "App::Widget::TextField",
                          size => 4,
                          maxlength => 12,
                      )->html();
             $html .= " Num Rows:";
-            $html .= $context->widget("$name.maxrows",
+            $html .= $context->widget("$name-maxrows",
                          class => "App::Widget::TextField",
                          size => 4,
                          maxlength => 12,
                      )->html();
             $html .= "\n";
-            $html .= $context->widget("$name.next",
+            $html .= $context->widget("$name-next",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -691,7 +694,7 @@ sub html {
         if ($mode eq "edit") {
             $html .= "<table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr>\n";
             $html .= "<td>\n";
-            $html .= $context->widget("$name.save",
+            $html .= $context->widget("$name-save",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -713,7 +716,7 @@ sub html {
                      )->html();
             $html .= "</td>\n";
             $html .= "<td>\n";
-            $html .= $context->widget("$name.delete",
+            $html .= $context->widget("$name-delete",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          #volatile => 1,
@@ -724,7 +727,7 @@ sub html {
                      )->html();
             $html .= "</td>\n";
             #$html .= "<td>\n";
-            #$html .= $context->widget("$name.confirm",
+            #$html .= $context->widget("$name-confirm",
             #             class => "App::Widget::RadioButtonSet",
             #             #volatile => 1,
             #             values => [ "no_confirm", "confirm", "auto_confirm" ],
@@ -743,12 +746,12 @@ sub html {
             if ($sortable) {
                 $html .= "<tr>\n";
                 $html .= "  <td>&nbsp;</td>\n" if ($numbered);
-                $html .= "  <td>&nbsp;</td>\n" if ($rowSelectable);
-                $html .= "  <td>&nbsp;</td>\n" if ($rowSingleSelectable);
+                $html .= "  <td>&nbsp;</td>\n" if ($row_selectable);
+                $html .= "  <td>&nbsp;</td>\n" if ($row_single_selectable);
                 $html .= "  <td>&nbsp;</td>\n" if ($#row_actions > -1);
 
                 for ($col = 0; $col < $numcols; $col++) {
-                    $elem = $context->widget("$name.sort$col",
+                    $elem = $context->widget("$name-sort$col",
                                 class => "App::Widget::ImageButton",
                                 image_script => 'app-button',
                                 #volatile => 1,
@@ -766,8 +769,8 @@ sub html {
                 my ($w);
                 $html .= "<tr>\n";
                 $html .= "  <td>&nbsp;</td>\n" if ($numbered);
-                $html .= "  <td>&nbsp;</td>\n" if ($rowSelectable);
-                $html .= "  <td>&nbsp;</td>\n" if ($rowSingleSelectable);
+                $html .= "  <td>&nbsp;</td>\n" if ($row_selectable);
+                $html .= "  <td>&nbsp;</td>\n" if ($row_single_selectable);
                 $html .= "  <td>&nbsp;</td>\n" if ($#row_actions > -1);
                 for ($col = 0; $col < $numcols; $col++) {
                     $column = $columns->[$col];
@@ -787,15 +790,15 @@ sub html {
                 $html .= "</tr>\n";
             }
         }
-        if ($mode eq "edit" && $columnSelectable) {
+        if ($mode eq "edit" && $column_selectable) {
             $html .= "<tr>\n";
             $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($numbered);
-            $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($rowSelectable);
-            $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($rowSingleSelectable);
+            $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($row_selectable);
+            $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($row_single_selectable);
             $html .= "  <td bgcolor=\"#ffaaaa\">&nbsp;</td>\n" if ($#row_actions > -1);
             for ($col = 0; $col < $numcols; $col++) {
                 $column = $columns->[$col];
-                $elem = $context->widget("$name\{columnSelected}{$column}",
+                $elem = $context->widget("$name\{column_selected}{$column}",
                             class => "App::Widget::Checkbox",
                         )->html();
                 $html .= "  <td bgcolor=\"#ffaaaa\" valign=\"bottom\" align=\"center\">$elem</td>\n";
@@ -809,28 +812,28 @@ sub html {
 
     $elem_begin = "";
     $elem_end = "";
-    if ($fontFace || $fontSize || $fontColor) {
+    if ($font_face || $font_size || $font_color) {
         $elem_begin = "<font";
-        $elem_begin .= " face=\"$fontFace\""   if ($fontFace);
-        $elem_begin .= " size=\"$fontSize\""   if ($fontSize);
-        $elem_begin .= " color=\"$fontColor\"" if ($fontColor);
+        $elem_begin .= " face=\"$font_face\""   if ($font_face);
+        $elem_begin .= " size=\"$font_size\""   if ($font_size);
+        $elem_begin .= " color=\"$font_color\"" if ($font_color);
         $elem_begin .= ">";
         $elem_end = "</font>";
     }
 
     $td_row_attrib = "";
-    $td_row_attrib .= " bgcolor=\"$headingBgcolor\"" if ($headingBgcolor);
-    $td_row_attrib .= " align=\"$headingAlign\""     if ($headingAlign);
-    $td_row_attrib .= " valign=\"$headingValign\""   if ($headingValign);
-    $td_row_attrib .= " nowrap" if ($headingNowrap);
+    $td_row_attrib .= " bgcolor=\"$heading_bgcolor\"" if ($heading_bgcolor);
+    $td_row_attrib .= " align=\"$heading_align\""     if ($heading_align);
+    $td_row_attrib .= " valign=\"$heading_valign\""   if ($heading_valign);
+    $td_row_attrib .= " nowrap" if ($heading_nowrap);
 
     $html .= "<tr>\n";
-    $html .= "  <td bgcolor=\"$headingBgcolor\">&nbsp;</td>\n" if ($numbered);
+    $html .= "  <td bgcolor=\"$heading_bgcolor\">&nbsp;</td>\n" if ($numbered);
 
-    if ($rowSelectable) {
+    if ($row_selectable) {
         if ($#select_actions > -1) {
             my (%args);
-            $html .= "  <td bgcolor=\"$headingBgcolor\" valign=\"bottom\">";
+            $html .= "  <td bgcolor=\"$heading_bgcolor\" valign=\"bottom\">";
             foreach $rowaction (@select_actions) {
                 %args = (
                     override => 1,
@@ -847,8 +850,8 @@ sub html {
                         $args{$_} = $rowactiondef->{$_};
                     }
                 }
-                $html .= $context->widget("$name.${rowaction}", %args, 
-                             args => "{${name}" . "{rowSelected}}"
+                $html .= $context->widget("$name-${rowaction}", %args, 
+                             args => "{${name}" . "{row_selected}}"
                          )->html();
                 $html .= "<br>\n" if ($rowaction ne $select_actions[$#select_actions]);
             }
@@ -859,10 +862,10 @@ sub html {
         }
     }
 
-    if ($rowSingleSelectable) {
+    if ($row_single_selectable) {
         if ($#single_select_actions > -1) {
             my (%args);
-            $html .= "  <td bgcolor=\"$headingBgcolor\" valign=\"bottom\">";
+            $html .= "  <td bgcolor=\"$heading_bgcolor\" valign=\"bottom\">";
             foreach $rowaction (@single_select_actions) {
                 %args = (
                     override => 1,
@@ -879,8 +882,8 @@ sub html {
                         $args{$_} = $rowactiondef->{$_};
                     }
                 }
-                $html .= $context->widget("$name.${rowaction}", %args, 
-                             args => "{${name}" . "{rowSingleSelected}}"
+                $html .= $context->widget("$name-${rowaction}", %args, 
+                             args => "{${name}" . "{row_single_selected}}"
                          )->html();
                 $html .= "<br>\n" if ($rowaction ne $single_select_actions[$#select_actions]);
             }
@@ -891,7 +894,7 @@ sub html {
         }
     }
 
-    $html .= "  <td bgcolor=\"$headingBgcolor\">&nbsp;</td>\n" if ($#row_actions > -1);
+    $html .= "  <td bgcolor=\"$heading_bgcolor\">&nbsp;</td>\n" if ($#row_actions > -1);
     for ($col = 0; $col < $numcols; $col++) {
         $td_col_attrib = "";
         $elem = $headings->[$col];
@@ -913,13 +916,13 @@ sub html {
     if ($mode eq "edit") {
 
         # prepare the style attribute arrays
-        push(@edit_style, "fontFamily", $fontFace)  if ($fontFace);
-        push(@edit_style, "color",      $fontColor) if ($fontColor);
+        push(@edit_style, "font_family", $font_face)  if ($font_face);
+        push(@edit_style, "color",      $font_color) if ($font_color);
 
         # This seems to cause <input> elements to take on the font size
         # currently active for text that surrounds them
         # i.e. <font size="-2"><input type="text" style="font-size: 100%;"></font>
-        push(@edit_style, "fontSize",   "100%")     if ($fontSize);
+        push(@edit_style, "font_size",   "100%")     if ($font_size);
 
         # borderStyle",
         # borderWidth",
@@ -935,8 +938,8 @@ sub html {
                 $column = $columns->[$col];
             }
     
-            if (($column ne "" && $self->{columnSelected}{$column}) ||
-                ($self->{rowSelected} && %{$self->{rowSelected}})) {
+            if (($column ne "" && $self->{column_selected}{$column}) ||
+                ($self->{row_selected} && %{$self->{row_selected}})) {
                 for ($row = 0; $row <= $#$data; $row++) {
                     $elem = $data->[$row][$col];
                     if (defined $elem && length($elem) > $column_length[$col]) {
@@ -957,19 +960,19 @@ sub html {
             $key = join(",", @{$keys->[$row]});   # need to HTML-escape these!
         }
 
-        $html .= "  <td bgcolor=\"$headingBgcolor\" align=\"right\">$elem_begin$numrow$elem_end</td>\n" if ($numbered);
+        $html .= "  <td bgcolor=\"$heading_bgcolor\" align=\"right\">$elem_begin$numrow$elem_end</td>\n" if ($numbered);
 
-        if ($rowSelectable) {
+        if ($row_selectable) {
             $html .= "  <td bgcolor=\"#ffaaaa\" valign=\"middle\" align=\"center\">\n";
-            $html .= $context->widget("$name\{rowSelected}{$key}",
+            $html .= $context->widget("$name\{row_selected}{$key}",
                          class => "App::Widget::Checkbox",
                      )->html();
             $html .= "  </td>\n";
         }
 
-        if ($rowSingleSelectable) {
+        if ($row_single_selectable) {
             $html .= "  <td bgcolor=\"#ffaaaa\" valign=\"middle\" align=\"center\">\n";
-            $html .= $context->widget("$name\{rowSingleSelected}",
+            $html .= $context->widget("$name\{row_single_selected}",
                          class => "App::Widget::RadioButton",
                          override => 1,
                          value => $key,
@@ -979,7 +982,7 @@ sub html {
 
         if ($#row_actions > -1) {
             my (%args);
-            $html .= "  <td bgcolor=\"$headingBgcolor\">";
+            $html .= "  <td bgcolor=\"$heading_bgcolor\">";
             foreach $rowaction (@row_actions) {
                 %args = (
                     override => 1,
@@ -1005,19 +1008,19 @@ sub html {
             $elem = $data->[$row][$col];
 
             $column = "";
-            $elemSelected = 0;
+            $elem_selected = 0;
             if ($mode eq "edit") {
                 if (defined $columns && defined $columns->[$col]) {
                     $column = $columns->[$col];
                 }
-                if (($self->{columnSelected}{$column} && $self->{rowSelected}{$key}) ||
-                    ($self->{columnSelected}{$column} && (!defined $self->{rowSelected} || !%{$self->{rowSelected}})) ||
-                    ((!defined $self->{columnSelected} || !%{$self->{columnSelected}})  && $self->{rowSelected}{$key})) {
-                    $elemSelected = 1;
+                if (($self->{column_selected}{$column} && $self->{row_selected}{$key}) ||
+                    ($self->{column_selected}{$column} && (!defined $self->{row_selected} || !%{$self->{row_selected}})) ||
+                    ((!defined $self->{column_selected} || !%{$self->{column_selected}})  && $self->{row_selected}{$key})) {
+                    $elem_selected = 1;
                 }
             }
 
-            if ($elemSelected) {
+            if ($elem_selected) {
                 if (!defined $elem || $elem eq "") {
                     $elem = "";
                     $td_col_attrib = " align=\"left\"";

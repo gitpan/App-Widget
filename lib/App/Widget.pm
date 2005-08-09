@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Widget.pm,v 1.6 2005/01/07 13:52:17 spadkins Exp $
+## $Id: Widget.pm,v 1.7 2005/08/09 19:21:27 spadkins Exp $
 ######################################################################
 
 package App::Widget;
-$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.7 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::SessionObject;
 @ISA = ( "App::SessionObject" );
@@ -13,7 +13,7 @@ use strict;
 
 =head1 NAME
 
-App::Widget - An abstract base class for all Widget::* classes
+App::Widget - a family of web user interface widgets (works with App::Context), enabling development of UI's and UI components as compound, nested sets of other UI components
 
 =head1 SYNOPSIS
 
@@ -59,7 +59,7 @@ App::Widget - An abstract base class for all Widget::* classes
 #    else {
 #        my $name = $self->{name};
 #        my $container = "default";
-#        if ($name =~ /^(.+)\.[a-zA-Z][a-zA-Z0-9_]*$/) {
+#        if ($name =~ /^(.+)-[a-zA-Z][a-zA-Z0-9_]*$/) {
 #            $container = $1;
 #        }
 #        my $context = $self->{context};
@@ -167,13 +167,30 @@ EOF
     }
 
     my $context = $self->{context};
+    my $options = $context->{options};
     my $response = $context->response();
-    my $context_head = "";
+    my $context_head = $options->{"app.html.head"} || "";
     my $context_body = "";
+    if ($response->{include}{css_list}) {
+        my $items = $response->{include}{css_list};
+        foreach my $item (@$items) {
+            if ($item =~ /^</) {
+                $context_head .= $item;
+            }
+            else {
+                $context_head .= "<link href=\"$item\" type=\"text/css\" rel=\"stylesheet\"></script>\n";
+            }
+        }
+    }
     if ($response->{include}{javascript}) {
-        my $javascript = $response->{include}{javascript};
-        foreach my $url (keys %$javascript) {
-            $context_head .= "<script src=\"$url\"></script>\n";
+        my $items = $response->{include}{javascript_list};
+        foreach my $item (@$items) {
+            if ($item =~ /^</) {
+                $context_head .= $item;
+            }
+            else {
+                $context_head .= "<script src=\"$item\" type=\"text/javascript\" language=\"JavaScript\"></script>\n";
+            }
         }
     }
 
@@ -181,6 +198,7 @@ EOF
     #$context_body = $self->{context}->body_html(\%main::conf);
 
     my $session_html = $context->session()->html();
+    my $event_placeholder = '<input type="hidden" id="app-event-aux" name="app.event" value="">';
 
     my $messages = $context->get_messages() || "";
     if ($messages) {
@@ -209,6 +227,7 @@ $context_head</head>
 <body${bodyoptions}>
 $messages<form method="POST">
 $session_html
+$event_placeholder
 $context_body
 $html
 </form>
@@ -347,30 +366,32 @@ sub url_escape {
 
 # HTML-escape data
 sub html_escape {
-   my ($self, $text) = @_;
-   return "" if (!defined $text || $text eq "");
-   $text =~ s{&}{&amp;}gso;
-   $text =~ s{<}{&lt;}gso;
-   $text =~ s{>}{&gt;}gso;
-   $text =~ s{\"}{&quot;}gso;
-   return $text;
+    &App::sub_entry if ($App::trace);
+    my ($self, $text) = @_;
+    return "" if (!defined $text || $text eq "");
+    $text =~ s{&}{&amp;}gso;
+    $text =~ s{<}{&lt;}gso;
+    $text =~ s{>}{&gt;}gso;
+    $text =~ s{\"}{&quot;}gso;
+    &App::sub_exit($text) if ($App::trace);
+    return $text;
 }
 
 sub html_attribs {
-   my ($self) = @_;
-   my $html_attribs = "";
-   if ($self->{attrib}) {
-      my $attrib_value = $self->{attrib};
-      foreach my $attrib (keys %$attrib_value) {
-         $html_attribs .= " $attrib=\"$attrib_value->{$attrib}\"";
-      }
-   }
-   return($html_attribs);
+    my ($self) = @_;
+    my $html_attribs = "";
+    if ($self->{attrib}) {
+        my $attrib_value = $self->{attrib};
+        foreach my $attrib (keys %$attrib_value) {
+            $html_attribs .= " $attrib=\"$attrib_value->{$attrib}\"";
+        }
+    }
+    return($html_attribs);
 }
 
 sub html {
-   my ($self) = @_;
-   return $self->html_escape($self->{name});
+    my ($self) = @_;
+    return $self->html_escape($self->{name});
 }
 
 # get the URL of the host

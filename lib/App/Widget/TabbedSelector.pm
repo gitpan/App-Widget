@@ -1,27 +1,27 @@
 
 ######################################################################
-## $Id: TabbedView.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: TabbedSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
 ######################################################################
 
-package App::Widget::TabbedView;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+package App::Widget::TabbedSelector;
+$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
-use App::Widget::HierView;
-@ISA = ( "App::Widget::HierView" );
+use App::Widget::HierSelector;
+@ISA = ( "App::Widget::HierSelector" );
 
 use strict;
 
 =head1 NAME
 
-App::Widget::TabbedView - A screen selector widget
+App::Widget::TabbedSelector - A screen selector widget
 
 =head1 SYNOPSIS
 
-   use App::Widget::TabbedView;
+   use App::Widget::TabbedSelector;
 
    $name = "get_data";
-   $w = App::Widget::TabbedView->new($name);
+   $w = App::Widget::TabbedSelector->new($name);
    print $w->html();
 
 =cut
@@ -43,6 +43,13 @@ sub _init {
     if (! $self->get("selected")) {
         $self->select_first();
     }
+}
+
+sub select {
+    my ($self, $nodeattrib, $value) = @_;
+    my $success = $self->SUPER::select($nodeattrib, $value);
+    $self->open_selected_exclusively();
+    return($success);
 }
 
 ######################################################################
@@ -77,11 +84,18 @@ sub html {
     $html_url_dir = $context->get_option("html_url_dir");
     $xgif = "$html_url_dir/images/Widget/dot_clear.gif";
 
-    $html = '<table border="0" cellpadding="0" cellspacing="0" width="100%">' . "\n";
+    $html = "";
 
+    $nodelevel = 0;
     $nodebase = "";
-    for ($nodelevel = 0; $nodelevel <= $#nodeidx; $nodelevel++) {
+    if (defined $node->{1} && !defined $node->{2}) {
+        $nodelevel = 1;
+        $nodebase = "1.";
+    }
+    for (; $nodelevel <= $#nodeidx; $nodelevel++) {
+        $html .= '<table border="0" cellpadding="0" cellspacing="0" width="100%">' . "\n";
         $html .= "  <tr><td rowspan=\"3\" width=\"1%\" height=\"19\" nowrap>";
+
         $nodeidx = 1;
         $nodenumber = "$nodebase$nodeidx"; # create its node number
         while (defined $node->{$nodenumber}) {
@@ -90,7 +104,7 @@ sub html {
             $label = $node->{$nodenumber}{value} if (!defined $label);
             $label = "" if (!defined $label);
 
-            $w = $context->widget("$name.button$nodenumber",
+            $w = $context->widget("$name-button$nodenumber",
                 class => "App::Widget::ImageButton",
                 image_script => "app-button",
                 volatile     => 1,
@@ -127,9 +141,8 @@ sub html {
         $html .= "  <tr>\n";
         $html .= "    <td height=\"2\" width=\"99%\" bgcolor=\"#ffffff\"><img src=\"$xgif\" height=\"2\" width=\"1\"></td>\n";
         $html .= "  </tr>\n";
+        $html .= "</table>\n";
     }
-
-    $html .= "</table>\n";
 
     $html;
 }

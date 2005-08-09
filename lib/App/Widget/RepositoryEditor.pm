@@ -1,6 +1,6 @@
 
 ######################################################################
-## $Id: RepositoryEditor.pm,v 1.8 2004/11/10 15:44:26 spadkins Exp $
+## $Id: RepositoryEditor.pm,v 1.9 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 ## x TODO: add "summary" feature
 ## x TODO: add cross-tabulation
@@ -32,7 +32,7 @@
 ## x TODO: add default {summary} formula as sum(COL)            (for numbers)
 
 package App::Widget::RepositoryEditor;
-$VERSION = do { my @r=(q$Revision: 1.8 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.9 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -122,21 +122,21 @@ sub handle_event {
     $self->{context}->dbgprint("RepositoryEditor($name)->handle_event($wname,$event,@args)")
         if ($App::DEBUG && $self->{context}->dbg(1));
 
-    if ($wname eq "$name.open_button") {
+    if ($wname eq "$name-open_button") {
     }
-    elsif ($wname eq "$name.save_button") {
+    elsif ($wname eq "$name-save_button") {
     }
-    elsif ($wname eq "$name.delete_button") {
+    elsif ($wname eq "$name-delete_button") {
     }
-    elsif ($wname eq "$name.saveas_button") {
+    elsif ($wname eq "$name-saveas_button") {
     }
-    elsif ($wname eq "$name.view_button") {
+    elsif ($wname eq "$name-view_button") {
         $self->set_mode("view", 0);
     }
-    elsif ($wname eq "$name.edit_button") {
+    elsif ($wname eq "$name-edit_button") {
         $self->set_mode("edit", 1);
     }
-    elsif ($wname eq "$name.select_button") {
+    elsif ($wname eq "$name-select_button") {
         $table = $self->get("new_table");
         $self->set("table", $table);
         $self->set("columns",     []);
@@ -264,19 +264,19 @@ sub mk_criteria_html {
     my ($view_button, $edit_button, $select_button);
     my ($columns, $params);
 
-    $view          = $context->widget("$name.view",
+    $view          = $context->widget("$name-view",
                          class => "App::Widget::TextField",
                          size => 20,
                          maxwidth => 99,
                      )->html();
 
-    $saveas_view   = $context->widget("$name.saveas_view",
+    $saveas_view   = $context->widget("$name-saveas_view",
                          class => "App::Widget::TextField",
                          size => 20,
                          maxwidth => 99,
                      )->html();
 
-    $new_table     = $context->widget("$name.new_table",
+    $new_table     = $context->widget("$name-new_table",
                          class => "App::Widget::Select",
                          values => $table_names,
                          labels => $table_label_hashref,
@@ -284,13 +284,13 @@ sub mk_criteria_html {
 
     $self->set_default("maxrows",25);
 
-    $maxrows       = $context->widget("$name.maxrows",
+    $maxrows       = $context->widget("$name-maxrows",
                          class => "App::Widget::TextField",
                          size => 4,
                          maxlength => 99,
                      )->html();
 
-    $open_button   = $context->widget("$name.open_button",
+    $open_button   = $context->widget("$name-open_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "Open",
@@ -299,7 +299,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $save_button   = $context->widget("$name.save_button",
+    $save_button   = $context->widget("$name-save_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "Save",
@@ -308,7 +308,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $delete_button = $context->widget("$name.delete_button",
+    $delete_button = $context->widget("$name-delete_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "Delete",
@@ -317,7 +317,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $saveas_button = $context->widget("$name.saveas_button",
+    $saveas_button = $context->widget("$name-saveas_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "Save As",
@@ -326,7 +326,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $view_button   = $context->widget("$name.view_button",
+    $view_button   = $context->widget("$name-view_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "View",
@@ -335,7 +335,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $edit_button   = $context->widget("$name.edit_button",
+    $edit_button   = $context->widget("$name-edit_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => 'Edit',
@@ -344,7 +344,7 @@ sub mk_criteria_html {
                          bevel => 2,
                      )->html();
 
-    $select_button = $context->widget("$name.select_button",
+    $select_button = $context->widget("$name-select_button",
                          class => "App::Widget::ImageButton",
                          image_script => 'app-button',
                          label => "Select Table",
@@ -411,7 +411,7 @@ sub column_selection_html {
     my ($columns, $column_labels, $column_menu, $column_menu_html);
     $columns       = $rep->get_column_names($table);
     $column_labels = $rep->get_column_labels($table);
-    $column_menu = $context->widget("$name.columns",
+    $column_menu = $context->widget("$name-columns",
         override => 1,
         class => "App::Widget::Select",
         values => $columns,
@@ -521,7 +521,7 @@ sub param_selection_html {
         "NOT_OR"  => "Not any of the following conditions",
     );
 
-    $conjunction_menu = $context->widget("$name.conjunction",
+    $conjunction_menu = $context->widget("$name-conjunction",
         class => "App::Widget::Select",
         values => \@conjunction,
         labels => \%conjunction,

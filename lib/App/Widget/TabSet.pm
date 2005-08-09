@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: TabSet.pm,v 1.3 2003/05/19 17:41:18 spadkins Exp $
+## $Id: TabSet.pm,v 1.4 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::TabSet;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -74,8 +74,8 @@ sub handle_event {
     $name = $self->{name};
     $context   = $self->{context};
 
-    if ($wname eq "$name.selector" && $event eq "select") {
-        $selector_widget = $context->widget("$name.selector");
+    if ($wname eq "$name-selector" && $event eq "select") {
+        $selector_widget = $context->widget("$name-selector");
         $screen_wname    = $selector_widget->get_selected("wname");
         $screen_widget   = $context->widget($screen_wname);
 
@@ -136,8 +136,8 @@ sub html {
 
     if (1) {     # view as table
 
-        $selector_widget = $context->widget("$name.selector",
-                               class => "App::Widget::TabbedView",
+        $selector_widget = $context->widget("$name-selector",
+                               class => "App::Widget::TabbedSelector",
                            );
 
         $selector        = $selector_widget->html();
@@ -163,6 +163,8 @@ sub html {
     <td valign="top">
       $selector
     </td>
+  </tr>
+  <tr>
     <td valign="top" bgcolor="$screen_bgcolor">
       $screen
     </td>

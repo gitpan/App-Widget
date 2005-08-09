@@ -1,27 +1,27 @@
 
 ######################################################################
-## $Id: TreeView.pm,v 1.3 2004/09/02 21:05:00 spadkins Exp $
+## $Id: TreeSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
 ######################################################################
 
-package App::Widget::TreeView;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+package App::Widget::TreeSelector;
+$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
-use App::Widget::HierView;
-@ISA = ( "App::Widget::HierView" );
+use App::Widget::HierSelector;
+@ISA = ( "App::Widget::HierSelector" );
 
 use strict;
 
 =head1 NAME
 
-App::Widget::TreeView - An HTML tree view
+App::Widget::TreeSelector - An HTML tree view
 
 =head1 SYNOPSIS
 
-   use App::Widget::TreeView;
+   use App::Widget::TreeSelector;
 
    $name = "get_data";
-   $w = App::Widget::TreeView->new($name);
+   $w = App::Widget::TreeSelector->new($name);
    print $w->html();
 
 =cut
@@ -101,9 +101,9 @@ sub html {
     }
 
     $html_url_dir   = $self->{context}->get_option("html_url_dir");
-    $imgstart       = "<img src=\"$html_url_dir/images/TreeView/";
+    $imgstart       = "<img src=\"$html_url_dir/images/TreeSelector/";
     $imgend         = "\" width=\"19\" height=\"16\" border=\"0\"/>";
-    $imgbuttonstart = "<input type=\"image\" src=$html_url_dir/images/TreeView/";
+    $imgbuttonstart = "<input type=\"image\" src=$html_url_dir/images/TreeSelector/";
     $imgbuttonend   = " width=\"19\" height=\"16\" border=\"0\"/>";
 
     $html = "";

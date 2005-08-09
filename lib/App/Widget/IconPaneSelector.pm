@@ -1,27 +1,27 @@
 
 ######################################################################
-## $Id: SelectorView.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: IconPaneSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
 ######################################################################
 
-package App::Widget::SelectorView;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+package App::Widget::IconPaneSelector;
+$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
-use App::Widget::HierView;
-@ISA = ( "App::Widget::HierView" );
+use App::Widget::HierSelector;
+@ISA = ( "App::Widget::HierSelector" );
 
 use strict;
 
 =head1 NAME
 
-App::Widget::SelectorView - A screen selector widget
+App::Widget::IconPaneSelector - A screen selector widget
 
 =head1 SYNOPSIS
 
-   use App::Widget::SelectorView;
+   use App::Widget::IconPaneSelector;
 
    $name = "get_data";
-   $w = App::Widget::SelectorView->new($name);
+   $w = App::Widget::IconPaneSelector->new($name);
    print $w->html();
 
 =cut
@@ -104,7 +104,7 @@ EOF
                 $label = $node->{$nodenumber}{label};
                 $label = $node->{$nodenumber}{value} if (!defined $label);
                 $label = "" if (!defined $label);
-                $html .= $context->widget("$name.button$nodenumber",
+                $html .= $context->widget("$name-button$nodenumber",
                     class => "App::Widget::ImageButton",
                     image_script => "app-button",
                     volatile     => 1,
@@ -136,9 +136,9 @@ EOF
                 $nodelabel =~ s/\./_/g;
 
                 $html .= "<p>";
-                $html .= $context->widget("$name.button$nodelabel",
+                $html .= $context->widget("$name-button$nodelabel",
                     class        => "App::Widget::ImageButton",
-                    image        => "images/SelectorView/$icon",
+                    image        => "images/IconPaneSelector/$icon",
                     height       => "36",
                     width        => "36",
                     label        => $label,

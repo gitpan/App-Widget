@@ -1,6 +1,6 @@
 
 #############################################################################
-## $Id: TemplateEngine.pm,v 1.3 2004/09/02 21:05:00 spadkins Exp $
+## $Id: TemplateEngine.pm,v 1.4 2005/08/09 19:19:21 spadkins Exp $
 #############################################################################
 
 package App::TemplateEngine;
@@ -129,12 +129,14 @@ L<C<App::Service>|App::Service/"new()">.
 =cut
 
 sub render {
+    &App::sub_entry if ($App::trace);
     my ($self, $template) = @_;
 
     my ($template_text, $values, $text);
     $template_text = $self->read_template($template);
     $values = $self->prepare_values();
     $text = $self->substitute($template_text, $values);
+    &App::sub_exit($text) if ($App::trace);
     $text;
 }
 
@@ -184,6 +186,7 @@ sub service_type () { 'TemplateEngine'; }
 =cut
 
 sub read_template {
+    &App::sub_entry if ($App::trace);
     my ($self, $template) = @_;
 
     my ($template_dir, $template_text);
@@ -201,6 +204,7 @@ sub read_template {
         $template_text = "Template [$template_dir/$template] not found.";
     }
 
+    &App::sub_exit($template_text) if ($App::trace);
     return($template_text);
 }
 
@@ -223,26 +227,27 @@ sub read_template {
 =cut
 
 sub prepare_values {
+    &App::sub_entry if ($App::trace);
     my ($self) = @_;
 
-    my ($session, %values);
-    $session = $self->{context}->session();
+    #my ($session, %values);
+    #$session = $self->{context}->session();
 
-    # OK. I'm breaking some of the encapsulation.
-    # They say Perl is post-modern. ;-)
+    #if (defined $session->{cache}{SessionObject}{session} &&
+    #    ref($session->{cache}{SessionObject}{session}) eq "HASH") {
+    #    %values = %{$session->{cache}{SessionObject}{session}}; # make a copy
+    #}
+    #if (defined $session->{cache}{SessionObject} && ref($session->{cache}{SessionObject}) eq "HASH") {
+    #    $values{SESSIONOBJECT} = $session->{cache}{SessionObject};  # add ref to higher level
+    #}
+    #if (defined $session->{cache} && ref($session->{cache}) eq "HASH") {
+    #    $values{SESSION} = $session->{cache};         # add ref to higher level
+    #}
 
-    if (defined $session->{cache}{SessionObject}{session} &&
-        ref($session->{cache}{SessionObject}{session}) eq "HASH") {
-        %values = %{$session->{cache}{SessionObject}{session}}; # make a copy
-    }
-    if (defined $session->{cache}{SessionObject} && ref($session->{cache}{SessionObject}) eq "HASH") {
-        $values{SESSIONOBJECT} = $session->{cache}{SessionObject};  # add ref to higher level
-    }
-    if (defined $session->{cache} && ref($session->{cache}) eq "HASH") {
-        $values{SESSION} = $session->{cache};         # add ref to higher level
-    }
+    my $values = $self->{context}->options();
 
-    return(\%values);
+    &App::sub_exit($values) if ($App::trace);
+    return($values);
 }
 
 #############################################################################
@@ -262,56 +267,16 @@ sub prepare_values {
 
     $text = $template_engine->substitute($template_text, $values);
 
-This method substitutes 
-(No subclass of this class need be used if the 
-
 =cut
 
 sub substitute {
+    &App::sub_entry if ($App::trace);
     my ($self, $template_text, $values) = @_;
 
     my ($phrase, $var, $value, $context, $expand);
     $context = $self->{context};
     $values = {} if (! defined $values);
 
-    while ( $template_text =~ /^\{([^\{\}]+)\}$/ ) {
-        $phrase = $1;
-        while ( $phrase =~ /\[%(\+?)([^%]+)%\]/ ) {
-            $expand = $1;
-            $var    = $2;
-            if ($expand) {
-                eval {
-                    $value = $context->widget($var)->html();
-                };
-                $value = "[$var: $@]" if ($@);
-                $phrase =~ s/\[%\+$var%\]/$value/g;
-            }
-            elsif (defined $values->{$var}) {
-                $value = $values->{$var};
-                $phrase =~ s/\[%$var%\]/$value/g;
-            }
-            else {
-                if ($var =~ /^(.+)\.([^.]+)$/) {
-                    $value = $context->so_get($1, $2);
-                    if (defined $value) {
-                        $phrase =~ s/\[%$var%\]/$value/g;
-                    }
-                    else {
-                        $phrase = "";
-                    }
-                }
-                else {
-                    $phrase = "";
-                }
-            }
-        }
-        if ($phrase eq "") {
-            $template_text =~ s/^\{[^\{\}]+\}\n?//;  # zap it including (optional) ending newline
-        }
-        else {
-            $template_text =~ s/^\{[^\{\}]+\}/$phrase/;
-        }
-    }
     while ( $template_text =~ /\[%(\+?)([^%]+)%\]/ ) {  # vars of the form [%var%] or [%+var%]
         $expand = $1;
         $var    = $2;
@@ -320,21 +285,39 @@ sub substitute {
                 $value = $context->widget($var)->html();
             };
             $value = "[$var: $@]" if ($@);
-            $template_text =~ s/\[%\+$var%\]/$value/g;
         }
         elsif (defined $values->{$var}) {
             $value = $values->{$var};
-            $template_text =~ s/\[%$var%\]/$value/g;
         }
         else {
-            $value = "";
-            if ($var =~ /^(.+)\.([^.]+)$/) {
-                $value = $context->so_get($1, $2);
-            }
+            $value = $context->so_get($var);
+            $value = $values->{$var} if (!defined $value);
             $value = "" if (!defined $value);
-            $template_text =~ s/\{$var\}/$value/g;
         }
+        $template_text =~ s/\[%\+$var%\]/$value/g;
     }
+
+    while ( $template_text =~ /\{(\+?)([a-zA-Z][a-zA-Z0-9_.-]*)\}/ ) {  # vars of the form {var} or {+var}
+        $expand = $1;
+        $var    = $2;
+        if ($expand) {
+            eval {
+                $value = $context->widget($var)->html();
+            };
+            $value = "[$var: $@]" if ($@);
+        }
+        elsif (defined $values->{$var}) {
+            $value = $values->{$var};
+        }
+        else {
+            $value = $context->so_get($var);
+            $value = $values->{$var} if (!defined $value);
+            $value = "" if (!defined $value);
+        }
+        $template_text =~ s/\{$var\}/$value/g;
+    }
+
+    &App::sub_exit($template_text) if ($App::trace);
     $template_text;
 }
 

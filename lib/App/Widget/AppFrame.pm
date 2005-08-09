@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: AppFrame.pm,v 1.5 2004/09/02 21:05:00 spadkins Exp $
+## $Id: AppFrame.pm,v 1.6 2005/08/09 19:25:46 spadkins Exp $
 ######################################################################
 
 package App::Widget::AppFrame;
-$VERSION = do { my @r=(q$Revision: 1.5 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -74,8 +74,8 @@ sub handle_event {
     $name = $self->{name};
     $context   = $self->{context};
 
-    if ($wname eq "$name.selector" && $event eq "select") {
-        $selector_widget = $context->widget("$name.selector");
+    if ($wname eq "$name-selector" && $event eq "select") {
+        $selector_widget = $context->widget("$name-selector");
         $screen_wname    = $selector_widget->get_selected("wname");
         $screen_widget   = $context->widget($screen_wname);
         $screen_settings = $selector_widget->get_selected("set");
@@ -135,20 +135,20 @@ sub html {
 
     if (1) {     # view as table
 
-        $menu            = $context->widget("$name.menu",
+        $menu            = $context->widget("$name-menu",
                                class => "App::Widget::Menu",
                            )->html();
 
-        $toolbar         = $context->widget("$name.toolbar",
+        $toolbar         = $context->widget("$name-toolbar",
                                class => "App::Widget::Toolbar",
                            )->html();
 
-        $screentoolbar   = $context->widget("$name.screentoolbar",
+        $screentoolbar   = $context->widget("$name-screentoolbar",
                                class => "App::Widget::Toolbar",
                            )->html();
 
-        $selector_widget = $context->widget("$name.selector",
-                               class => "App::Widget::SelectorView",
+        $selector_widget = $context->widget("$name-selector",
+                               class => "App::Widget::IconPaneSelector",
                            );
 
         $selector        = $selector_widget->html();
@@ -177,7 +177,7 @@ sub html {
         #    return $screen;    # no need to generate a frame
         #}
 
-        #$screentitle_widget = $context->widget("$name.screentitle",
+        #$screentitle_widget = $context->widget("$name-screentitle",
         #    -label     => $screentitle_value,
         #    -bgcolor   => "#888888",
         #);
