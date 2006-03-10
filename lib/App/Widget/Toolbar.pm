@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Toolbar.pm,v 1.2 2005/08/09 19:25:46 spadkins Exp $
+## $Id: Toolbar.pm 3464 2005-08-09 19:25:46Z spadkins $
 ######################################################################
 
 package App::Widget::Toolbar;
-$VERSION = do { my @r=(q$Revision: 1.2 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3464 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;

@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Label.pm,v 1.1 2002/10/12 03:13:08 spadkins Exp $
+## $Id: Label.pm 3224 2002-10-12 03:13:09Z spadkins $
 ######################################################################
 
 package App::Widget::Label;
-$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3224 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;

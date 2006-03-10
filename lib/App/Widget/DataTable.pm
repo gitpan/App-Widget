@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DataTable.pm,v 1.7 2005/08/09 19:25:46 spadkins Exp $
+## $Id: DataTable.pm 3492 2005-10-20 20:32:11Z spadkins $
 ######################################################################
 
 package App::Widget::DataTable;
-$VERSION = do { my @r=(q$Revision: 1.7 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3492 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -14,7 +14,7 @@ use strict;
 
 =head1 NAME
 
-App::Widget::DataTable - An HTML button
+App::Widget::DataTable - An HTML table which serves as a repository table viewer/editor
 
 =head1 SYNOPSIS
 
@@ -76,8 +76,8 @@ In the advanced configurations, it is rendered as an image button.
 # INITIALIZATION
 ######################################################################
 
-# uncomment this when I need to do more than just call SUPER::_init()
 sub _init {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     $self->SUPER::_init(@_);
     $self->{table} = $self->{name} if (!$self->{table});
@@ -143,34 +143,34 @@ sub handle_event {
     elsif ($event eq "sort") {
         ($colnum, $direction) = @args;
 
-        my ($columns, $directions, $ordercols, $column, $i);
+        my ($columns, $directions, $order_by, $column, $i);
         $columns    = $self->get_columns();
         $column     = $columns->[$colnum];
 
-        $ordercols = $self->get("ordercols");
-        if (defined $ordercols) {
+        $order_by = $self->get("order_by") || $self->get("ordercols");   # ordercols is deprecated in favor of order_by
+        if (defined $order_by) {
             $directions = $self->get("directions");
             $directions = [] if (!defined $directions);
-            for ($i = 0; $i <= $#$ordercols; $i++) {
-                if ($ordercols->[$i] eq $column) {
-                    splice(@$ordercols, $i, 1);     # delete the use of $column
+            for ($i = 0; $i <= $#$order_by; $i++) {
+                if ($order_by->[$i] eq $column) {
+                    splice(@$order_by, $i, 1);     # delete the use of $column
                     splice(@$directions, $i, 1);    # delete the sort direction
                     last;
                 }
             }
-            unshift(@$ordercols, $column);      # put it at the beginning
+            unshift(@$order_by, $column);      # put it at the beginning
             unshift(@$directions, $direction);
         }
         else {
-            $ordercols = [ $column ];
+            $order_by = [ $column ];
             $directions = [ $direction ];
         }
 
-        $self->set("ordercols",$ordercols);
+        $self->set("order_by",$order_by);
         $self->set("directions",$directions);
         $handled = 1;
     }
-    elsif ($wname =~ /^-sort[0-9]*$/) {
+    elsif ($wname =~ /-sort[0-9]*$/) {
         ($colnum, $x, $y) = @args;
         $context = $self->{context};
         $width = $context->widget($wname)->get("width");
@@ -193,6 +193,7 @@ sub handle_event {
 ######################################################################
 
 sub get_columns {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     my ($columns);
     $columns = $self->{columns};
@@ -210,10 +211,12 @@ sub get_columns {
         }
     }
     $columns = [] if (!defined $columns || ref($columns) eq "");
+    &App::sub_exit($columns) if ($App::trace);
     $columns;
 }
 
 sub get_headings {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     $self->{context}->dbgprint("DataTable->get_headings()")
         if ($App::DEBUG && $self->{context}->dbg(1));
@@ -222,6 +225,7 @@ sub get_headings {
     $columns = $self->get_columns();
     $headings = $self->get("headings");
     $lang = $self->{lang};
+    my $column_attribs = $self->{column} || {};
     if (!defined $headings) {
         $headings = [];
         my ($repname, $context, $rep, $columnlabels);
@@ -230,8 +234,7 @@ sub get_headings {
         $rep = $context->repository($repname);
         $columnlabels = $rep->get_column_labels($table);
         foreach $column (@$columns) {
-            $heading = $columnlabels->{$column};
-            $heading = $column if (!defined $heading);
+            $heading = $column_attribs->{$column}{label} || $columnlabels->{$column} || $column;
             $heading = $self->translate($heading, $lang) if (defined $lang);
             push(@$headings, $heading);
             $self->{context}->dbgprint("DataTable->get_headings(): column=$column(",$#$columns,") heading=$heading(",$#$headings,")")
@@ -240,10 +243,12 @@ sub get_headings {
     }
     $self->{context}->dbgprint("DataTable->get_headings(): columns=[", join(",", @{$self->get("columns",[])}), "]")
         if ($App::DEBUG && $self->{context}->dbg(1));
+    &App::sub_exit($headings) if ($App::trace);
     $headings;
 }
 
 sub get_data {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     $self->{context}->dbgprint("DataTable->get_data()")
         if ($App::DEBUG && $self->{context}->dbg(1));
@@ -254,6 +259,7 @@ sub get_data {
         $self->load();
         $data = $self->{data};
     }
+    &App::sub_exit($data) if ($App::trace);
     return $data;
 }
 
@@ -264,7 +270,7 @@ sub load {
         if ($App::DEBUG && $self->{context}->dbg(1));
     my ($context, $repname, $rep, $rows, $table, $columns, $sql, $error, $data);
     my ($params, $paramvalues, $param, $paramvalue, @paramvalues);
-    my ($ordercols, $startrow, $maxrows, $endrow, $directions, $keycolidx);
+    my ($startrow, $maxrows, $endrow, $keycolidx);
     my (%paramvalues, $filter, $column);
 
     $repname = $self->get("repository");
@@ -365,25 +371,26 @@ sub load {
             }
         }
 
-        $ordercols   = $self->get("ordercols");
-        $directions  = $self->get("directions");
-        $startrow    = $self->get("startrow", 1, 1);
-        $maxrows     = $self->get("maxrows", 20, 1);
-        $endrow      = ($maxrows != 0) ? ($startrow + $maxrows - 1) : 0;
+        my $order_by   = $self->get("order_by") || $self->get("ordercols");   # ordercols is deprecated in favor of order_by
+        my $group_by   = $self->get("group_by");
+        my $directions = $self->get("directions");
+        $startrow      = $self->get("startrow", 1, 1);
+        $maxrows       = $self->get("maxrows", 20, 1);
+        $endrow        = ($maxrows != 0) ? ($startrow + $maxrows - 1) : 0;
 
         if ($App::DEBUG && $self->{context}->dbg(1)) {
-            $self->{context}->dbgprint("DataTable->load(): get_rows($table,c=$columns,p=$params,pv=$paramvalues,oc=$ordercols,$startrow,$endrow,$directions);");
+            $self->{context}->dbgprint("DataTable->load(): get_rows($table,c=$columns,p=$params,pv=$paramvalues,oc=$order_by,$startrow,$endrow,$directions);");
             $self->{context}->dbgprint("DataTable->load(): columns=[", join(",", @$columns), "]") if (ref($columns) eq "ARRAY");
             $self->{context}->dbgprint("DataTable->load(): params=[", join(",", @$params), "]") if (ref($params) eq "ARRAY");
             $self->{context}->dbgprint("DataTable->load(): paramvalues=[", join(",", %$paramvalues), "]") if (ref($paramvalues) eq "HASH");
-            $self->{context}->dbgprint("DataTable->load(): ordercols=[", join(",", @$ordercols), "]") if (ref($ordercols) eq "ARRAY");
+            $self->{context}->dbgprint("DataTable->load(): order_by=[", join(",", @$order_by), "]") if (ref($order_by) eq "ARRAY");
             $self->{context}->dbgprint("DataTable->load(): directions=[", join(",", @$directions), "]") if (ref($directions) eq "ARRAY");
         }
 
-        #$rows  = $rep->select_rows($table, $columns, $params, \%paramvalues, $ordercols, $startrow, $endrow, $directions);
-        #$rows  = $rep->select_rows($table, $columns, undef, \%paramvalues, $ordercols, $startrow, $endrow, $directions);
+        #$rows  = $rep->select_rows($table, $columns, $params, \%paramvalues, $order_by, $startrow, $endrow, $directions);
+        #$rows  = $rep->select_rows($table, $columns, undef, \%paramvalues, $order_by, $startrow, $endrow, $directions);
         $rows  = $rep->get_rows($table, \%paramvalues, $columns,
-            {ordercols => $ordercols, startrow => $startrow, endrow => $endrow, directions => $directions});
+            {order_by => $order_by, startrow => $startrow, endrow => $endrow, directions => $directions, group_by => $group_by});
         $error = $rep->error();
         if ($#$rows == -1 && $error) {
             $sql = $rep->{sql};
@@ -407,6 +414,7 @@ sub load {
 }
 
 sub save {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     my ($repname, $context, $rep, $table);
     my ($editdata, $key, $column, @columns, @values);
@@ -438,6 +446,7 @@ sub save {
         }
     }
     $rep->commit();
+    &App::sub_exit() if ($App::trace);
 }
 
 sub substitute {
@@ -464,10 +473,12 @@ sub substitute {
             $var = $1;
             if (defined $values->{$var}) {
                 $value = $values->{$var};
+                $value = join(",", @$value) if (ref($value) eq "ARRAY");
                 $phrase =~ s/\{$var\}/$value/g;
             }
             else {
                 $value = $context->so_get($var);
+                $value = join(",", @$value) if (ref($value) eq "ARRAY");
                 if (defined $value) {
                     $phrase =~ s/\{$var\}/$value/g;
                 }
@@ -487,10 +498,12 @@ sub substitute {
         $var = $1;
         if (defined $values->{$var}) {
             $value = $values->{$var};
+            $value = join(",", @$value) if (ref($value) eq "ARRAY");
             $text =~ s/\{$var\}/$value/g;
         }
         else {
             $value = $context->so_get($var);
+            $value = join(",", @$value) if (ref($value) eq "ARRAY");
         }
         $value = "" if (!defined $value);
         $text =~ s/\{$var\}/$value/g;
@@ -508,6 +521,7 @@ sub table_html {
 }
 
 sub html {
+    &App::sub_entry if ($App::trace);
     my $self = shift;
     $self->{context}->dbgprint("DataTable->html()")
         if ($App::DEBUG && $self->{context}->dbg(1));
@@ -568,6 +582,12 @@ sub html {
     $rowactions        = $self->get("rowactions");
     $rowactiondefs     = $self->get("rowaction");
 
+    my $repname = $self->get("repository");
+    my $rep = $context->repository($repname);
+    my $table_def = $rep->{table}{$table};
+    my $table_column_defs = $table_def->{column};
+    my $view_column_defs = $self->{column} || {};
+
     if (! $self->{keycolidx}) {
         $rowactions     = undef;
         $row_selectable = 0;        # can't select row(s) if no primary key
@@ -590,11 +610,11 @@ sub html {
     }
 
     # only needed for subtotals
-    #my ($subtotal, $subtotal_keys, $ordercols);
+    #my ($subtotal, $subtotal_keys, $order_by);
     #$subtotal_keys = $self->get("subtotal_keys");
     #$subtotal = (defined $subtotal_keys && ref($subtotal_keys) eq "ARRAY" && $#$subtotal_keys > -1);
     #if ($subtotal) {
-    #    $ordercols = $self->get("ordercols");
+    #    $order_by = $self->get("order_by") || $self->get("ordercols");   # ordercols is deprecated in favor of order_by
     #}
 
     my ($html, $row, $col, $elem);
@@ -924,11 +944,11 @@ sub html {
         # i.e. <font size="-2"><input type="text" style="font-size: 100%;"></font>
         push(@edit_style, "font_size",   "100%")     if ($font_size);
 
-        # borderStyle",
-        # borderWidth",
-        # borderColor",
+        # border_style",
+        # border_width",
+        # border_color",
         # padding",
-        # backgroundColor",
+        # background_color",
 
         # any columns we are editing, we need to compute max width (size) for textfield
         for ($col = 0; $col < $numcols; $col++) {
@@ -950,6 +970,7 @@ sub html {
         }
     }
 
+    my ($format, $scale_factor);
     for ($row = 0; $row <= $#$data; $row++) {
         $numrow = $startrow + $row;
 
@@ -1008,11 +1029,18 @@ sub html {
             $elem = $data->[$row][$col];
 
             $column = "";
+            $format = "";
+            $scale_factor = "";
+            $align = "";
+            if (defined $columns && defined $columns->[$col]) {
+                $column = $columns->[$col];
+                $format       = $view_column_defs->{$column}{format}       || $table_column_defs->{$column}{format};
+                $scale_factor = $view_column_defs->{$column}{scale_factor} || $table_column_defs->{$column}{scale_factor};
+                $align        = $view_column_defs->{$column}{align}        || $table_column_defs->{$column}{align};
+            }
+
             $elem_selected = 0;
             if ($mode eq "edit") {
-                if (defined $columns && defined $columns->[$col]) {
-                    $column = $columns->[$col];
-                }
                 if (($self->{column_selected}{$column} && $self->{row_selected}{$key}) ||
                     ($self->{column_selected}{$column} && (!defined $self->{row_selected} || !%{$self->{row_selected}})) ||
                     ((!defined $self->{column_selected} || !%{$self->{column_selected}})  && $self->{row_selected}{$key})) {
@@ -1025,11 +1053,18 @@ sub html {
                     $elem = "";
                     $td_col_attrib = " align=\"left\"";
                 }
-                elsif ($elem =~ /^[-0-9.%]+$/) {
-                    $td_col_attrib = " align=\"right\"";
-                }
                 else {
-                    $td_col_attrib = " align=\"left\"";
+                    $elem = $elem * $scale_factor if ($scale_factor);
+                    if ($align) {
+                        $td_col_attrib = " align=\"$align\"";
+                    }
+                    elsif ($elem =~ /^[-0-9.,%]+$/) {
+                        $td_col_attrib = " align=\"right\"";
+                    }
+                    else {
+                        $td_col_attrib = " align=\"left\"";
+                    }
+                    $elem = sprintf($format, $elem) if ($format);
                 }
                 if (! defined $self->{editdata}{$key}{$column}) {
                     $self->{editdata}{$key}{$column} = $elem
@@ -1039,9 +1074,9 @@ sub html {
                              class => "App::Widget::TextField",
                              size => $column_length[$col]+2,   # add 2 just to give some visual space
                              maxlength => 99,
-                             backgroundColor => "#ffaaaa",
-                             borderStyle => "solid",
-                             borderWidth => "1px",
+                             background_color => "#ffaaaa",
+                             border_style => "solid",
+                             border_width => "1px",
                              padding => 0,
                              @edit_style,
                          )->html();
@@ -1052,11 +1087,18 @@ sub html {
                 if (!defined $elem || $elem eq "") {
                     $elem = "&nbsp;";
                 }
-                elsif ($elem =~ /^[-0-9.%]+$/) {
-                    $td_col_attrib = " align=\"right\"";
-                }
                 else {
-                    $td_col_attrib = " align=\"left\"";
+                    $elem = $elem * $scale_factor if ($scale_factor);
+                    $elem = sprintf($format, $elem) if ($format);
+                    if ($align) {
+                        $td_col_attrib = " align=\"$align\"";
+                    }
+                    elsif ($elem =~ /^[-0-9.,%]+$/) {
+                        $td_col_attrib = " align=\"right\"";
+                    }
+                    else {
+                        $td_col_attrib = " align=\"left\"";
+                    }
                 }
                 $html .= "  <td$td_row_attrib$td_col_attrib>$elem_begin$elem$elem_end</td>\n";
             }
@@ -1066,12 +1108,11 @@ sub html {
 
     $html .= "</table>\n";
     if (1) {
-        my $repname = $self->get("repository");
-        my $rep = $context->repository($repname);
         $html .= "<!-- SQL used in table query\n";
         $html .= $rep->{sql};
         $html .= "-->\n";
     }
+    &App::sub_exit("<html ...>") if ($App::trace);
     $html;
 }
 

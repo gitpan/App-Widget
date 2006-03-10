@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Button.pm,v 1.4 2004/11/10 15:45:09 spadkins Exp $
+## $Id: Button.pm 3383 2004-11-10 15:45:09Z spadkins $
 ######################################################################
 
 package App::Widget::Button;
-$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3383 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;

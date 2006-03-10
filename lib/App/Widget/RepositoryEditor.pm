@@ -1,6 +1,6 @@
 
 ######################################################################
-## $Id: RepositoryEditor.pm,v 1.9 2005/08/09 19:25:46 spadkins Exp $
+## $Id: RepositoryEditor.pm 3464 2005-08-09 19:25:46Z spadkins $
 ######################################################################
 ## x TODO: add "summary" feature
 ## x TODO: add cross-tabulation
@@ -32,7 +32,7 @@
 ## x TODO: add default {summary} formula as sum(COL)            (for numbers)
 
 package App::Widget::RepositoryEditor;
-$VERSION = do { my @r=(q$Revision: 1.9 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3464 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;

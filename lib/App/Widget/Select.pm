@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Select.pm,v 1.3 2004/11/10 15:45:09 spadkins Exp $
+## $Id: Select.pm 3494 2005-10-20 20:34:24Z spadkins $
 ######################################################################
 
 package App::Widget::Select;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3494 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget::Stylizable;
 @ISA = ( "App::Widget::Stylizable" );
@@ -47,10 +47,18 @@ This class is a <select> HTML element.
 ######################################################################
 
 # uncomment this when I need to do more than just call SUPER::_init()
-#sub _init {
-#   my $self = shift;
-#   $self->SUPER::_init(@_);
-#}
+sub _init {
+    my $self = shift;
+    my $context = $self->{context};
+    my $name = $self->{name};
+    my $value = $context->so_get($name);
+    if ($value eq "EACH") {
+        my ($values, $labels) = $self->values_labels();
+        $value = join(",", @$values);
+        $context->so_set($name, undef, $value);
+    }
+    $self->SUPER::_init(@_);
+}
 
 ######################################################################
 # METHODS

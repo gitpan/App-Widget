@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: IconPaneSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
+## $Id: IconPaneSelector.pm 3465 2005-08-09 19:26:19Z spadkins $
 ######################################################################
 
 package App::Widget::IconPaneSelector;
-$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3465 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget::HierSelector;

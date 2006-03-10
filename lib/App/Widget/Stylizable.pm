@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Stylizable.pm,v 1.3 2004/09/02 21:05:00 spadkins Exp $
+## $Id: Stylizable.pm 3367 2004-09-02 21:05:00Z spadkins $
 ######################################################################
 
 package App::Widget::Stylizable;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3367 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget;
 @ISA = ( "App::Widget" );

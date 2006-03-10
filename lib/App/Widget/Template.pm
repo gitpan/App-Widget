@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Template.pm,v 1.2 2002/10/25 19:50:19 spadkins Exp $
+## $Id: Template.pm 3229 2002-10-25 19:50:19Z spadkins $
 ######################################################################
 
 package App::Widget::Template;
-$VERSION = do { my @r=(q$Revision: 1.2 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3229 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget;
 @ISA = ( "App::Widget" );

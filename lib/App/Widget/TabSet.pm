@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: TabSet.pm,v 1.4 2005/08/09 19:25:46 spadkins Exp $
+## $Id: TabSet.pm 3464 2005-08-09 19:25:46Z spadkins $
 ######################################################################
 
 package App::Widget::TabSet;
-$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3464 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;

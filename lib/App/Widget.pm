@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Widget.pm,v 1.7 2005/08/09 19:21:27 spadkins Exp $
+## $Id: Widget.pm 3551 2006-02-28 22:02:31Z spadkins $
 ######################################################################
 
 package App::Widget;
-$VERSION = do { my @r=(q$Revision: 1.7 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3551 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::SessionObject;
 @ISA = ( "App::SessionObject" );
@@ -111,8 +111,8 @@ App::Widget - a family of web user interface widgets (works with App::Context), 
 sub content {
     &App::sub_entry if ($App::trace);
     my $self = shift;
-
     my ($html);
+
     eval {
         $html = $self->html();
     };
@@ -145,6 +145,13 @@ $msg
 </td></tr>
 </table>
 EOF
+    }
+
+    if (defined $self->{content}) {
+        my $content = $self->{content};
+        $self->{content} = "";
+        &App::sub_exit($content) if ($App::trace);
+        return($content);
     }
 
     my ($title, $bodyoptions, $w, $var, $value);
@@ -240,6 +247,33 @@ EOF
 }
 
 #############################################################################
+# set_alternative_content()
+#############################################################################
+
+=head2 set_alternative_content()
+
+    * Signature: $service->set_alternative_content($content, $extension);
+    * Param:     $content        string
+    * Param:     $extension      string
+    * Return:    void
+    * Throws:    App::Exception
+    * Since:     0.01
+
+    Sample Usage:
+
+    $service->set_alternative_content("red,green,blue\n1,2,3\n", "csv");
+
+=cut
+
+sub set_alternative_content {
+    &App::sub_entry if ($App::trace);
+    my ($self, $content, $extension) = @_;
+    $self->{content}   = $content;
+    $self->{extension} = $extension;
+    &App::sub_exit() if ($App::trace);
+}
+
+#############################################################################
 # content_type()
 #############################################################################
 
@@ -257,9 +291,25 @@ EOF
 
 =cut
 
+my %content_type = (
+    html => "text/html",
+    txt  => "text/plain",
+    pdf  => "application/pdf\nContent-disposition: attachment; filename=\"data.pdf\"",
+    xls  => "application/vnd.ms-excel\nContent-disposition: attachment; filename=\"data.xls\"",
+    xml  => "application/xml",
+    csv  => "application/octet-stream\nContent-disposition: attachment; filename=\"data.csv\"",
+    bin  => "application/octet-stream\nContent-disposition: attachment; filename=\"data.bin\"",
+);
+
 sub content_type {
     &App::sub_entry if ($App::trace);
-    my $content_type = 'text/html';
+    my ($self) = @_;
+    my $extension = $self->{extension} || "html";
+    delete $self->{extension} if (!defined $self->{content});
+    my $content_type = $content_type{$extension};
+    if (!$content_type) {
+        $content_type = $content_type{bin};
+    }
     &App::sub_exit($content_type) if ($App::trace);
     return($content_type);
 }
@@ -368,11 +418,15 @@ sub url_escape {
 sub html_escape {
     &App::sub_entry if ($App::trace);
     my ($self, $text) = @_;
-    return "" if (!defined $text || $text eq "");
-    $text =~ s{&}{&amp;}gso;
-    $text =~ s{<}{&lt;}gso;
-    $text =~ s{>}{&gt;}gso;
-    $text =~ s{\"}{&quot;}gso;
+    if (!defined $text) {
+        $text = "";
+    }
+    elsif ($text) {
+        $text =~ s{&}{&amp;}gso;
+        $text =~ s{<}{&lt;}gso;
+        $text =~ s{>}{&gt;}gso;
+        $text =~ s{\"}{&quot;}gso;
+    }
     &App::sub_exit($text) if ($App::trace);
     return $text;
 }

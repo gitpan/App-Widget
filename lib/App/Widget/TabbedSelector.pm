@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: TabbedSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
+## $Id: TabbedSelector.pm 3558 2006-03-01 03:35:40Z spadkins $
 ######################################################################
 
 package App::Widget::TabbedSelector;
-$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3558 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget::HierSelector;
@@ -40,7 +40,7 @@ M$ Outlook.
 sub _init {
     my $self = shift;
     $self->SUPER::_init(@_);
-    if (! $self->get("selected")) {
+    if (! $self->{selected}) {
         $self->select_first();
     }
 }
@@ -50,6 +50,13 @@ sub select {
     my $success = $self->SUPER::select($nodeattrib, $value);
     $self->open_selected_exclusively();
     return($success);
+}
+
+sub open_exclusively {
+    my ($self, $opennodenumber) = @_;
+    #$self->{debug} .= "open_exclusively($opennodenumber)<br>";
+    $self->SUPER::open_exclusively($opennodenumber);
+    $self->select_first_open_leaf($opennodenumber);
 }
 
 ######################################################################
@@ -66,11 +73,13 @@ sub html {
     my ($bgcolor, $width, $fontface, $fontsize, $fontcolor, $fontbegin, $fontend);
     my ($html_url_dir, $xgif);
 
-    $bgcolor   = $self->get("bgcolor",   "#888888");
-    $width     = $self->get("width",     "100%");
-    $fontface  = $self->get("fontface",  "verdana,geneva,arial,sans-serif");
-    $fontsize  = $self->get("fontsize",  "-2");
-    $fontcolor = $self->get("fontcolor", "#ffffff");
+    $bgcolor   = $self->{bgcolor}   || "#cccccc";
+    $width     = $self->{width}     || "100%";
+    $fontface  = $self->{fontface}  || "verdana,geneva,arial,sans-serif";
+    $fontsize  = $self->{fontsize}  || "-2";
+    $fontcolor = $self->{fontcolor} || "#ffffff";
+
+    $bgcolor = " bgcolor=\"$bgcolor\"";
 
     #$fontbegin = "<font face=\"$fontface\" size=\"$fontsize\" color=\"$fontcolor\">";
     #$fontend   = "</font>";
@@ -84,7 +93,7 @@ sub html {
     $html_url_dir = $context->get_option("html_url_dir");
     $xgif = "$html_url_dir/images/Widget/dot_clear.gif";
 
-    $html = "";
+    $html = $self->{debug} || "";
 
     $nodelevel = 0;
     $nodebase = "";
@@ -132,7 +141,7 @@ sub html {
         }
         $nodebase .= "$nodeidx[$nodelevel].";
         $html .= "</td>\n";
-        $html .= "    <td height=16 width=\"99%\"><img src=transp.gif height=16 width=1></td>\n";
+        $html .= "    <td height=16 width=\"99%\"$bgcolor><img src=transp.gif height=16 width=1></td>\n";
         $html .= "    <td height=\"16\" width=\"99%\"></td>\n";
         $html .= "  </tr>\n";
         $html .= "  <tr>\n";

@@ -2,6 +2,16 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.96
+ x App::Widget::DataTable2 - finishes the job DataTable set out to do
+ x App::Widget::DataTable - per-column align, format, scale_factor
+ x App::Widget::TabbedSelector/HierSelector - fix up multi-level tab selector
+ x App::Widget::TextArea - new
+ x App::Widget::Graph - new
+ x App::Widget::DataAnalysis - new, but not finished
+ x App::Widget::Hidden - new
+ x App::Widget::Select - support EACH value
+
 VERSION 0.95
  x Widget containership is defined in the widget name by dashes ("-") instead of dots (".") (better for CSS)
  x Added better support for JavaScript and CSS (style sheets)

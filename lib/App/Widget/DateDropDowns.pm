@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DateDropDowns.pm,v 1.6 2005/08/09 19:25:46 spadkins Exp $
+## $Id: DateDropDowns.pm 3464 2005-08-09 19:25:46Z spadkins $
 ######################################################################
 
 package App::Widget::DateDropDowns;
-$VERSION = do { my @r=(q$Revision: 1.6 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3464 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::Widget::StylizableContainer;
 @ISA = ( "App::Widget::StylizableContainer" );

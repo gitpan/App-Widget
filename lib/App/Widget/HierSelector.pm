@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: HierSelector.pm,v 1.1 2005/08/09 19:26:19 spadkins Exp $
+## $Id: HierSelector.pm 3550 2006-02-28 20:39:11Z spadkins $
 ######################################################################
 
 package App::Widget::HierSelector;
-$VERSION = do { my @r=(q$Revision: 1.1 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3550 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget;
@@ -166,35 +166,80 @@ sub open_selected_exclusively {
     $self->open_exclusively($self->{selected});
 }
 
+# i.e. $self->open_exclusively("2.2");
+# this should "open" 2 and close 1,3,4,5,...
+# this should "open" 2.2 and close 2.1,2.3,2.4,...
+# if "2.2.1" exists, it should set the first open to the "selected"
+# else it should set itself "2.2" as the "selected"
 sub open_exclusively {
     my ($self, $opennodenumber) = @_;
     my ($nodebase, $nodeidx, $nodenumber);
     my $node = $self->get("node");
+    # set after get to ensure a deep data structure is stored in the session
     $self->set("node", $node);
 
-    $nodebase = $opennodenumber;
-    if ($nodebase =~ /(.*)\.[^\.]+$/) {
-        $nodebase = $1 . ".";
+    $nodebase = $opennodenumber;   # i.e. "2.2.3", "2.2" or "2"
+    if ($nodebase =~ /(.*)\.[^\.]+$/) {  # all but the last number
+        $nodebase = $1 . ".";      # i.e. "2.2.",  "2."
     }
     else {
-        $nodebase = "";
+        $nodebase = "";            # if top level, $nodebase is blank ""
     }
     $nodeidx = 1;
 
     while (1) {
         $nodenumber = "$nodebase$nodeidx";
         last if (!defined $node->{$nodenumber});
-        $node->{$nodenumber}{open} = 0;
+        $node->{$nodenumber}{open} = 0;  # close all others at this level
         $nodeidx++;
     }
 
     if (defined $node->{$opennodenumber}) {
-        $node->{$opennodenumber}{open} = 1;
+        $node->{$opennodenumber}{open} = 1;  # open this one
     }
 
+    # Hmmm. I don't think I should be selecting anything here... just opening/closing.
     if (!defined $node->{"$opennodenumber.1"}) {
         $self->set("selected", $opennodenumber);
     }
+}
+
+# i.e. $self->select_first_open_leaf("2.2");
+# this should scan 2.2.1 through 2.2.n for the first open
+# this should "open" 2.2 and close 2.1,2.3,2.4,...
+# if "2.2.1" exists, it should set the first open to the "selected"
+# else it should set itself "2.2" as the "selected"
+sub select_first_open_leaf {
+    my ($self, $selected_nodenumber) = @_;
+
+    my $node = $self->{node};
+    my $nodebase = $selected_nodenumber;
+    my $nodeidx = 1;
+    my ($nodenumber);
+    my $found = 0;
+
+    while (!$found) {
+        $nodenumber = "$nodebase.$nodeidx";
+        if (!defined $node->{$nodenumber}) {
+            if ($nodeidx == 1) {  # there are no leaves. $nodebase must be a leaf.
+                $self->set("selected", $nodebase);
+                $found = 1;
+            }
+            else {  # no "open" leaves on this branch
+                $node->{"$nodebase.1"}{open} = 1;
+                $self->set("selected", "$nodebase.1");
+                $found = 1;
+            }
+        }
+        elsif ($node->{$nodenumber}{open}) {
+            $nodebase = $nodenumber;
+            $nodeidx  = 1;
+        }
+        else {
+            $nodeidx++;
+        }
+    }
+    #$self->{debug} .= "select_first_open_leaf($selected_nodenumber): [$nodenumber]<br>";
 }
 
 ######################################################################

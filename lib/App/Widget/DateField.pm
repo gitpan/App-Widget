@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: DateField.pm,v 1.3 2003/05/19 17:41:18 spadkins Exp $
+## $Id: DateField.pm 3491 2005-10-20 20:30:25Z spadkins $
 ######################################################################
 
 package App::Widget::DateField;
-$VERSION = do { my @r=(q$Revision: 1.3 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3491 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App;
 use App::Widget::TextField;
@@ -30,13 +30,13 @@ App::Widget::DateField - An HTML text field
       maxlength => 18,            # from HTML spec
       style => "mystyle",         # from HTML to support CSS
       color => "#6666CC",         # from CSS spec
-      fontSize => "10px",        # from CSS spec
-      borderStyle => "solid",    # from CSS spec
-      borderWidth => "1px",      # from CSS spec
-      borderColor => "#6666CC",  # from CSS spec
+      font_size => "10px",        # from CSS spec
+      border_style => "solid",    # from CSS spec
+      border_width => "1px",      # from CSS spec
+      border_color => "#6666CC",  # from CSS spec
       padding => "2px",           # from CSS spec
-      backgroundColor => "#ccffcc",           # from CSS spec
-      fontFamily => "Verdana, Geneva, Arial", # from CSS spec
+      background_color => "#ccffcc",           # from CSS spec
+      font_family => "Verdana, Geneva, Arial", # from CSS spec
       override => 1,              # increase precedence of following options to "override" from "default"
       #validate => "date",         # not impl. yet ("date", "time", "datetime", "enum", "number", "integer", ":regexp")
       #autocomplete => \@previous_choices,  # not impl. yet
