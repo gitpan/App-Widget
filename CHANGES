@@ -2,6 +2,9 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.961
+ x App::Widget::DataTable2 - fixed a (pretty serious) bug with delete()
+
 VERSION 0.96
  x App::Widget::DataTable2 - finishes the job DataTable set out to do
  x App::Widget::DataTable - per-column align, format, scale_factor

@@ -1,10 +1,10 @@
 
 ######################################################################
-## $Id: Widget.pm 3551 2006-02-28 22:02:31Z spadkins $
+## $Id: Widget.pm 3660 2006-03-11 05:00:02Z spadkins $
 ######################################################################
 
 package App::Widget;
-$VERSION = do { my @r=(q$Revision: 3551 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
+$VERSION = do { my @r=(q$Revision: 3660 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 use App::SessionObject;
 @ISA = ( "App::SessionObject" );
@@ -13,7 +13,7 @@ use strict;
 
 =head1 NAME
 
-App::Widget - a family of web user interface widgets (works with App::Context), enabling development of UI's and UI components as compound, nested sets of other UI components
+App::Widget - Family of web user interface widgets for the App::Context Framework, enabling development of complex UI's in a CGI, mod_perl, or other web context
 
 =head1 SYNOPSIS
 
