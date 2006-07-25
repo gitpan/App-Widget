@@ -2,6 +2,17 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.963
+ x Fixed bug in get_theme_value, needed to use labels instead of values
+ x add theme support to all widgets via get_theme_value()
+ x Added the ablity to use a different filename in set_alternative_content
+ x Added themable templates
+ x changed the way the default values are determined for substitution
+ x added multi-level, auth, outer table
+ x added DTD to widget HTML
+ x add support for onLoad handling
+ x per-module VERSION (svn)
+
 VERSION 0.961
  x App::Widget::DataTable2 - fixed a (pretty serious) bug with delete()
 
