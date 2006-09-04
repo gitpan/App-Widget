@@ -2,6 +2,10 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.964
+ x DataTable2, ImageButton: look for app-button in cgi-bin/App/app-button, not cgi-bin/app-button
+ x TemplateEngine: do the {xyz} subs before the [%xyz%] subs. strict disallows {xyz} syntax
+
 VERSION 0.963
  x Fixed bug in get_theme_value, needed to use labels instead of values
  x add theme support to all widgets via get_theme_value()

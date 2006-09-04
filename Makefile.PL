@@ -1,6 +1,6 @@
 
 ######################################################################
-## File: $Id: Makefile.PL 6705 2006-07-25 02:01:23Z spadkins $
+## File: $Id: Makefile.PL 6851 2006-09-04 19:39:05Z spadkins $
 ######################################################################
 
 use ExtUtils::MakeMaker;
@@ -14,7 +14,7 @@ my @programs = (
 %opts = (
     'NAME'        => 'App-Widget',
     'DISTNAME'    => 'App-Widget',
-    'VERSION'     => '0.963',
+    'VERSION'     => '0.964',
     'EXE_FILES'   => [ @programs ],
     'PREREQ_PM'   => { # I haven't yet determined what the minimum versions should be
                        'Compress::Zlib'           => 0,  # for compressed serialization and browser responses
@@ -27,9 +27,6 @@ my @programs = (
                        'MIME::Base64'             => "2.1", # used for turning binary (serialized?) data into text (Sessions)
                        'Storable'                 => 0,  # used for serialization everywhere
                      },
-    'clean'       => { FILES => '$(EXE_FILES)' },
-    'dist'        => {'COMPRESS'=>'gzip -9f', 'SUFFIX' => 'gz',
-                      'ZIP'=>'/usr/bin/zip','ZIPFLAGS'=>'-rl'},
 );
 
 ######################################################################
