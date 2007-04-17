@@ -2,6 +2,10 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.965
+ x add <input name=app.loaded> for handling js-app back button stuff
+ x App::Widget->format() method
+
 VERSION 0.964
  x DataTable2, ImageButton: look for app-button in cgi-bin/App/app-button, not cgi-bin/app-button
  x TemplateEngine: do the {xyz} subs before the [%xyz%] subs. strict disallows {xyz} syntax
