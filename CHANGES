@@ -2,6 +2,11 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.966
+ o App::Widget::Select: add {init_default}
+ o App::Widget::DataTable2: fix use of get_table_def() so that it works on redirected tables
+ o App::Widget::DataTable2: add {deletable}, {copyable}, and {addable} options for the {editable} option
+
 VERSION 0.965
  x add <input name=app.loaded> for handling js-app back button stuff
  x App::Widget->format() method
