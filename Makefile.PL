@@ -1,6 +1,6 @@
 
 ######################################################################
-## File: $Id: Makefile.PL 13309 2009-09-11 14:30:04Z spadkins $
+## File: $Id: Makefile.PL 14126 2010-06-09 20:57:38Z spadkins $
 ######################################################################
 
 use ExtUtils::MakeMaker;
@@ -14,7 +14,7 @@ my @programs = (
 %opts = (
     'NAME'        => 'App-Widget',
     'DISTNAME'    => 'App-Widget',
-    'VERSION'     => '0.967',
+    'VERSION'     => '0.968',
     'EXE_FILES'   => [ @programs ],
     'PREREQ_PM'   => { # I haven't yet determined what the minimum versions should be
                        'Compress::Zlib'           => 0,  # for compressed serialization and browser responses

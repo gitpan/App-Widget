@@ -2,6 +2,10 @@
 # CHANGE LOG
 #########################################
 
+VERSION 0.968
+ o App::Widget::TabbedAppFrame, App::Widget::TabbedSelector - add support for deep-linking to a particular tab within the AppFrame with the 'screen=foo' URL parameter
+ o ensure that MANIFEST is clean and that all files are in it (including App::Widget::Graph)
+
 VERSION 0.967
  o App::Widget::DataTable2 - Fix bug when nowrap was set to 0, it wasn't working
  o App::Widget::Graph      - fixed a couple bugs on graphs
